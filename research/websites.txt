@@ -1,0 +1,37 @@
+Research websitesfor philosophers:
+
+Anime about Dining Philosophers Problem
+https://www.youtube.com/watch?v=ybDhEvwDe90
+
+Video explaning and coding the philo problem
+https://www.youtube.com/watch?v=5VDFUsJ61ck
+https://www.youtube.com/watch?v=5VDFUsJ61ck&list=PLCtu3Vmpda-a-dJeHHnJJIlFdC7y2yjjx
+
+
+
+
+Medium article from a 42 student
+https://medium.com/science-journal/the-dining-philosophers-problem-fded861c37ed
+https://gist.github.com/davidjpfeiffer/2bda83fbba570592e4d46d5e47853d32
+
+https://en.wikipedia.org/wiki/Deadlock_(computer_science)
+
+Multiple articles about the theme in this sciencedirect website
+https://www.sciencedirect.com/topics/computer-science/dining-philosophers-problem
+
+https://medium.com/@ruinadd/philosophers-42-guide-the-dining-philosophers-problem-893a24bc0fe2
+
+CodeVault Playlist about threads in C lang
+https://www.youtube.com/watch?v=d9s_d28yJq0&list=PLfqABt5AS4FmuQf70psXrsMLEDQXNkLq2&index=1
+
+Neso Academy Youtube
+https://www.youtube.com/watch?v=LOfGJcVnvAk
+https://www.youtube.com/watch?v=FYUi-u7UWgw
+
+
+Portfolio Courses Youtube
+https://www.youtube.com/watch?v=ldJ8WGZVXZk
+https://www.youtube.com/watch?v=K1aoimUYTK8
+
+
+
