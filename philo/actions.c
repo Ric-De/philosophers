@@ -6,7 +6,7 @@
 /*   By: rdellaza <rdellaza@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 17:51:46 by rdellaza          #+#    #+#             */
-/*   Updated: 2025/11/13 19:46:01 by rdellaza         ###   ########.fr       */
+/*   Updated: 2025/11/13 19:53:49 by rdellaza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -133,8 +133,31 @@ void	philo_sleep(t_philo *philo)
 /*
 ** Philosopher thinks
 ** Thinking time helps prevent starvation
-** The time is calculated to balance eating opportunities
+** Keep it minimal to maximize eating opportunities
 */
+void	philo_think(t_philo *philo)
+{
+	long	think_time;
+
+	print_status(philo, "is thinking");
+	
+	/* For even number of philosophers, add tiny delay */
+	/* For odd number, no delay needed */
+	if (philo->data->nb_philos % 2 == 0)
+		think_time = 1;
+	else
+		think_time = 0;
+		
+	/* Think for calculated time (very short) */
+	if (think_time > 0)
+		ft_usleep(think_time);
+}
+
+/*
+** Philosopher thinks
+** Thinking time helps prevent starvation
+** The time is calculated to balance eating opportunities
+
 void	philo_think(t_philo *philo)
 {
 	long	think_time;
@@ -146,23 +169,23 @@ void	philo_think(t_philo *philo)
 	time_to_eat = philo->data->time_to_eat;
 	time_to_sleep = philo->data->time_to_sleep;
 	
-	/* Calculate optimal thinking time */
-	/* If eating takes longer than sleeping, think for the difference */
+	// Calculate optimal thinking time
+	// If eating takes longer than sleeping, think for the difference
 	think_time = (time_to_eat * 2) - time_to_sleep;
 	
-	/* Ensure thinking time is reasonable */
+	// Ensure thinking time is reasonable 
 	if (think_time < 0)
 		think_time = 0;
 	if (think_time > 600)
 		think_time = 600;
 		
-	/* Actually think for calculated time */
+	// Actually think for calculated time 
 	if (think_time > 0)
 		ft_usleep(think_time);
 }
-
+*/
 /*
-** Philosopher thinks
+** Philosopher thinks	OLDest
 ** Thinking time helps prevent starvation
 ** If we have odd number of philos, no special delay needed
 ** If we have even number, add small delay to prevent lock-step
