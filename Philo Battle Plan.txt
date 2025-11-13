@@ -34,6 +34,9 @@ Tasks:
 Files: init.c (multiple functions: init_data(), init_philos(), init_forks(), init_mutexes())
 TODO: Memory cleanup function
 
+Phase 3.5: Add Cleanup
+cleanup.c file added with two functions to destroy mutexes and de-allocate memory.
+
 Phase 4: Time Utilities
 Goal: Get timing working precisely
 Tasks:
