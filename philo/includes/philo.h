@@ -6,7 +6,7 @@
 /*   By: rdellaza <rdellaza@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 14:46:20 by rdellaza          #+#    #+#             */
-/*   Updated: 2025/11/13 17:34:59 by rdellaza         ###   ########.fr       */
+/*   Updated: 2025/11/13 17:51:30 by rdellaza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,6 +73,10 @@ void	print_status(t_philo *philo, char *status);
 void	*philosopher_routine(void *arg);
 int		create_threads(t_data *data);
 int		join_threads(t_data *data);
+
+/* =============== ACTIONS =============== */
+void	take_forks(t_philo *philo);
+void	drop_forks(t_philo *philo);
 
 /* =============== CLEANUP =============== */
 void	cleanup_mutexes(t_data *data);
