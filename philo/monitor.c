@@ -6,7 +6,7 @@
 /*   By: rdellaza <rdellaza@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 18:27:31 by rdellaza          #+#    #+#             */
-/*   Updated: 2025/11/13 18:29:56 by rdellaza         ###   ########.fr       */
+/*   Updated: 2025/11/13 19:00:29 by rdellaza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,9 +45,7 @@ int	check_death(t_data *data)
 		/* Calculate how long since this philo last ate */
 		/* TODO: Protect last_meal_time with mutex */
 		time_since_meal = current_time - data->philos[i].last_meal_time;
-		printf("DEBUG: Philo %d time_since_meal = %ld ms\n",
-			data->philos[i].id, time_since_meal);
-		
+				
 		/* Check if philosopher has starved */
 		if (time_since_meal > data->time_to_die)
 		{
@@ -60,6 +58,8 @@ int	check_death(t_data *data)
 			pthread_mutex_lock(&data->death_mutex);
 			data->someone_died = 1;
 			pthread_mutex_unlock(&data->death_mutex);
+			printf("DEBUG: Monitor detected death of philo %d\n",
+				data->philos[i].id);
 			return (1);
 		}
 		i++;

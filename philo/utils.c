@@ -6,7 +6,7 @@
 /*   By: rdellaza <rdellaza@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 17:13:56 by rdellaza          #+#    #+#             */
-/*   Updated: 2025/11/13 17:29:25 by rdellaza         ###   ########.fr       */
+/*   Updated: 2025/11/13 18:55:25 by rdellaza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,11 +68,14 @@ void	print_status(t_philo *philo, char *status)
 
 	/* Lock print mutex to avoid mixed output from different threads */
 	pthread_mutex_lock(&philo->data->print_mutex);
-	/* Calculate timestamp: current time - start time */
-	timestamp = get_time() - philo->data->start_time;
-	/* TODO: Check if any of the thinkers died before printing */
-	/* Print in required format: timestamp_in_ms X status */
-	printf("%ld %d %s\n", timestamp, philo->id, status);
+	/* Don't print if someone already died (except death message itself) */
+	if (!is_simulation_over(philo->data))
+	{
+		/* Calculate timestamp: current time - start time */
+		timestamp = get_time() - philo->data->start_time;
+		/* Print in required format: timestamp_in_ms X status */
+		printf("%ld %d %s\n", timestamp, philo->id, status);
+	}
 	/* Unlock so other threads can print */
 	pthread_mutex_unlock(&philo->data->print_mutex);
 }

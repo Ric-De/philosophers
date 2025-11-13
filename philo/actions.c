@@ -6,7 +6,7 @@
 /*   By: rdellaza <rdellaza@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 17:51:46 by rdellaza          #+#    #+#             */
-/*   Updated: 2025/11/13 18:18:04 by rdellaza         ###   ########.fr       */
+/*   Updated: 2025/11/13 18:57:57 by rdellaza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,36 +14,56 @@
 
 /*
 ** Take forks in the correct order to avoid deadlock
+** SPECIAL CASE: If only 1 philosopher, they can never eat (only 1 fork exists)
 ** DEADLOCK PREVENTION STRATEGY:
-** - Even-numbered philos: take LEFT fork first, then RIGHT
-** - Odd-numbered philos: take RIGHT fork first, then LEFT
-** This ensures at least one philo can always eat
+** - Even-numbered philosophers: take LEFT fork first, then RIGHT
+** - Odd-numbered philosophers: take RIGHT fork first, then LEFT
+** This ensures at least one philosopher can always eat
 */
 void	take_forks(t_philo *philo)
 {
-	/* Even philos: left -> right */
+	/* SPECIAL CASE: Only 1 philosopher = only 1 fork = impossible to eat */
+	if (philo->data->nb_philos == 1)
+	{
+		pthread_mutex_lock(philo->left_fork);
+		print_status(philo, "has taken a fork");
+		/* Wait forever with only 1 fork - will die */
+		while (!is_simulation_over(philo->data))
+			usleep(100);
+		pthread_mutex_unlock(philo->left_fork);
+		return ;
+	}
+	/* Even philosophers: left -> right */
 	if (philo->id % 2 == 0)
 	{
 		/* Lock left fork */
 		pthread_mutex_lock(philo->left_fork);
 		print_status(philo, "has taken a fork");
-		printf("DEBUG: Philo %d took LEFT fork\n", philo->id);
+		/* Check if simulation ended before taking second fork */
+		if (is_simulation_over(philo->data))
+		{
+			pthread_mutex_unlock(philo->left_fork);
+			return ;
+		}
 		/* Lock right fork */
 		pthread_mutex_lock(philo->right_fork);
 		print_status(philo, "has taken a fork");
-		printf("DEBUG: Philo %d took RIGHT fork\n", philo->id);
 	}
-	/* Odd philos: right -> left */
+	/* Odd philosophers: right -> left */
 	else
 	{
 		/* Lock right fork */
 		pthread_mutex_lock(philo->right_fork);
 		print_status(philo, "has taken a fork");
-		printf("DEBUG: Philo %d took RIGHT fork\n", philo->id);
+		/* Check if simulation ended before taking second fork */
+		if (is_simulation_over(philo->data))
+		{
+			pthread_mutex_unlock(philo->right_fork);
+			return ;
+		}
 		/* Lock left fork */
 		pthread_mutex_lock(philo->left_fork);
 		print_status(philo, "has taken a fork");
-		printf("DEBUG: Philo %d took LEFT fork\n", philo->id);
 	}
 }
 
@@ -74,6 +94,15 @@ void	philo_eat(t_philo *philo)
 {
 	/* Take both forks */
 	take_forks(philo);
+	
+	/* Check if simulation ended while taking forks */
+	if (is_simulation_over(philo->data))
+	{
+		drop_forks(philo);
+		return ;
+	}
+
+	/* Check if simulation ended while taking forks */
 	/* Update last meal time - CRITICAL for death detection */
 	/* TODO: Protect this with a mutex later */
 	philo->last_meal_time = get_time();
@@ -86,7 +115,7 @@ void	philo_eat(t_philo *philo)
 	/* Increment meal counter */
 	philo->meals_eaten++;
 	printf("DEBUG: Philo %d meteu rango %d times\n",
-		philo->id, philo->meals_eaten);
+			philo->id, philo->meals_eaten);
 	/* Drop forks */
 	drop_forks(philo);
 }
