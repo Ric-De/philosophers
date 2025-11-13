@@ -6,7 +6,7 @@
 /*   By: rdellaza <rdellaza@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 17:51:46 by rdellaza          #+#    #+#             */
-/*   Updated: 2025/11/13 18:57:57 by rdellaza         ###   ########.fr       */
+/*   Updated: 2025/11/13 19:11:36 by rdellaza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,9 +132,35 @@ void	philo_sleep(t_philo *philo)
 
 /*
 ** Philosopher thinks
-** Just prints status (no specific time required)
+** Thinking time helps prevent starvation
+** If we have odd number of philos, no special delay needed
+** If we have even number, add small delay to prevent lock-step
 */
+void	philo_think(t_philo *philo)
+{
+	long	think_time;
+
+	print_status(philo, "is thinking");
+	/* Calculate thinking time to prevent starvation */
+	/* If time_to_eat > time_to_sleep, think for the difference */
+	if (philo->data->time_to_eat > philo->data->time_to_sleep)
+		think_time = (philo->data->time_to_eat - philo->data->time_to_sleep);
+	else
+		think_time = 0;
+	/* Add small delay for even philosophers to prevent lock-step */
+	if (think_time == 0 && philo->data->nb_philos % 2 == 0)
+		think_time = 1;
+	/* Think for calculated time */
+	if (think_time > 0)
+		ft_usleep(think_time);
+}
+
+/*
+** Philosopher thinks
+** Just prints status (no specific time required)
+
 void	philo_think(t_philo *philo)
 {
 	print_status(philo, "is thinking");
 }
+*/

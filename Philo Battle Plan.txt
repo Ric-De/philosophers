@@ -98,6 +98,18 @@ Tasks:
 Files: monitor.c
 Functions: monitor_routine(), check_death(), is_dead()
 
+-> Bugs here and results vary
+Try to fix building the philo_think() inside actions.c. It not worked at all
+and I noticed that the philos are dying before eat. 
+
+-> Maybe I am initializing last_meal_time in the philo routine before the monitor thread?
+Let's try to initialize last_meal_time before starting threads, not inside the thread routine.
+
+files updated. test runs but ...
+Seems better, but not working well. Maybe need to change approach??
+
+-> 
+
 Phase 9: Simulation Stop Logic
 Goal: Stop everything cleanly when someone dies or all ate enough
 Tasks:

@@ -6,7 +6,7 @@
 /*   By: rdellaza <rdellaza@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 14:55:01 by rdellaza          #+#    #+#             */
-/*   Updated: 2025/11/13 18:42:31 by rdellaza         ###   ########.fr       */
+/*   Updated: 2025/11/13 19:26:24 by rdellaza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@ int	main(int argc, char **argv)
 {
 	t_data	data;
 	pthread_t	monitor;
+	int	i;
 //	long	test_start;
 //	long	test_end;
 
@@ -62,6 +63,15 @@ int	main(int argc, char **argv)
 	data.start_time = get_time();
 	printf("DEBUG: Simulation start time: %ld\n", data.start_time);
 	
+	/* Initialize all philos last_meal_time to start_time */
+	i = 0;
+	while (i < data.nb_philos)
+	{
+		data.philos[i].last_meal_time = data.start_time;
+		i++;
+	}
+	printf("DEBUG: All philos last_meal_time initialized\n");
+
 	/* Create all philosopher threads */
 	if (!create_threads(&data))
 	{

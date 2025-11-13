@@ -6,7 +6,7 @@
 /*   By: rdellaza <rdellaza@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 18:20:27 by rdellaza          #+#    #+#             */
-/*   Updated: 2025/11/13 18:36:28 by rdellaza         ###   ########.fr       */
+/*   Updated: 2025/11/13 19:28:24 by rdellaza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,21 +26,19 @@ void	*philosopher_routine(void *arg)
 
 	/* Cast the void pointer back to t_philo pointer */
 	philo = (t_philo *)arg;
-	printf("DEBUG: Philo %d thread started\n", philo->id);
+	printf("DEBUG: Philosopher %d thread started\n", philo->id);
 	
-	/* Initialize last meal time to simulation start */
-	philo->last_meal_time = philo->data->start_time;
+// =>	/* NOTE: last_meal_time already initialized in main before threads start */
 	
 	/* Small stagger: even philos start slightly delayed */
 	/* This helps prevent all philos grabbing forks simultaneously */
 	if (philo->id % 2 == 0)
 		ft_usleep(50);
-	
 	/* Main loop: keep cycling until someone dies */
 	while (!is_simulation_over(philo->data))
 	{
 		philo_think(philo);
-		/* Check again before eating (philo might die while thinking) */
+		/* Check again before eating (philosopher might die while thinking) */
 		if (is_simulation_over(philo->data))
 			break ;
 		philo_eat(philo);
@@ -48,7 +46,7 @@ void	*philosopher_routine(void *arg)
 			break ;
 		philo_sleep(philo);
 	}
-	printf("DEBUG: Philo %d detected end of simulation, exiting\n",
+	printf("DEBUG: Philosopher %d detected end of simulation, exiting\n",
 		philo->id);
 	return (NULL);
 }

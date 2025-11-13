@@ -6,7 +6,7 @@
 /*   By: rdellaza <rdellaza@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 16:13:41 by rdellaza          #+#    #+#             */
-/*   Updated: 2025/11/13 16:18:36 by rdellaza         ###   ########.fr       */
+/*   Updated: 2025/11/13 19:22:51 by rdellaza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,7 +90,7 @@ int	init_philosophers(t_data *data)
 	{
 		data->philos[i].id = i + 1;
 		data->philos[i].meals_eaten = 0;
-		data->philos[i].last_meal_time = 0;
+		data->philos[i].last_meal_time = 0; /* Will be set to start_time in main */
 		/* Assign fork pointers (left and right) */
 		data->philos[i].left_fork = &data->forks[i];
 		data->philos[i].right_fork = &data->forks[(i + 1) % data->nb_philos];
