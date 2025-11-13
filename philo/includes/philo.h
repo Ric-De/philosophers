@@ -6,7 +6,7 @@
 /*   By: rdellaza <rdellaza@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 14:46:20 by rdellaza          #+#    #+#             */
-/*   Updated: 2025/11/13 14:54:53 by rdellaza         ###   ########.fr       */
+/*   Updated: 2025/11/13 15:26:40 by rdellaza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,5 +52,10 @@ typedef struct	s_philo
 /* =============== FUNCTION PROTOTYPES =============== */
 
 /* TODO: For function prototypes I create them */
+
+/* =============== PARSING =============== */
+int		parse_arguments(int argc, char **argv, t_data *data);
+int		ft_atoi(const char *str);
+int		is_valid_number(char *str);
 
 #endif
