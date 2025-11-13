@@ -1,0 +1,156 @@
+BATTLE PLAN - PHILOSOPHERS (Mandatory)
+
+Phase 1: Project Structure & Basic Setup
+Goal: Get the skeleton ready, compile something basic
+Tasks:
+1. Create philo/ directory
+2. Create Makefile (basic, we'll expand it)
+3. Create philo.h with struct definitions
+4. Create main.c with basic main() that prints "Hello Philo"
+5. Test: make && ./philo
+Files: Makefile, philo.h, main.c
+
+Phase 2: Argument Parsing
+Goal: Read and validate input arguments
+Tasks:
+1. Create parsing.c
+2. Write parse_arguments() function
+3. Validate: all positive integers, correct count (4 or 5 args)
+4. Add DEBUG prints for each parsed value
+5. Test: ./philo 5 800 200 200 [optional]
+Files: parsing.c (2-3 functions max)
+Functions: parse_arguments(), is_valid_number(), ft_atoi() maybe
+
+Phase 3: Data Structure Initialization
+Goal: Allocate and initialize everything
+Tasks:
+1. Create init.c
+2. Initialize t_data structure
+3. Allocate philosophers array
+4. Allocate fork mutexes array
+5. Initialize all mutexes
+6. Add DEBUG prints showing what was allocated
+7. Test: check with valgrind for leaks
+Files: init.c (multiple functions: init_data(), init_philos(), init_forks(), init_mutexes())
+TODO: Memory cleanup function
+
+Phase 4: Time Utilities
+Goal: Get timing working precisely
+Tasks:
+1. Create utils.c
+2. Write get_time() in milliseconds
+3. Write ft_usleep() that's more precise than usleep()
+4. Write print_status() with mutex protection
+5. Test: print timestamps, verify they're accurate
+Files: utils.c
+Functions: get_time(), ft_usleep(), print_status()
+
+Phase 5: Basic Thread Creation
+Goal: Create threads, make them do something simple
+Tasks:
+1. Create routine.c
+2. Write philosopher_routine() - just prints "Philo X alive"
+3. Create threads in main
+4. Join threads
+5. Add DEBUG prints before/after thread creation
+6. Test: ./philo 5 800 200 200 (all threads print and exit)
+Files: routine.c
+Functions: philosopher_routine(), create_threads() in main.c
+
+Phase 6: Fork Taking Logic
+Goal: Philosophers take and release forks properly
+Tasks:
+1. Add take_forks() function
+2. Add drop_forks() function
+3. Implement even/odd strategy (avoid deadlock)
+4. Print "has taken a fork" messages
+5. Add DEBUG: print which fork (left/right) is taken
+6. Test: verify no deadlocks with 4-5 philos
+Files: routine.c or new actions.c
+Functions: take_forks(), drop_forks()
+
+Phase 7: Eating, Sleeping, Thinking
+Goal: Complete philosopher lifecycle
+Tasks:
+1. Write eat() function (update last_meal_time, sleep for time_to_eat)
+2. Write sleep_philo() function
+3. Write think() function (can be empty for now)
+4. Update last_meal_time with mutex protection
+5. Add DEBUG: print duration of each action
+6. Test: ./philo 5 800 200 200 (watch the cycle)
+Files: actions.c
+Functions: eat(), sleep_philo(), think()
+TODO: Protect last_meal_time access
+
+Phase 8: Death Monitor
+Goal: Detect when a philosopher dies
+Tasks:
+1. Create monitor.c
+2. Write check_death() function (loop through philos)
+3. Create monitor thread in main
+4. Check if (current_time - last_meal) > time_to_die
+5. Set death flag, print death message
+6. Add DEBUG: print time since last meal for each philo
+7. Test: ./philo 1 800 200 200 (should die)
+Files: monitor.c
+Functions: monitor_routine(), check_death(), is_dead()
+
+Phase 9: Simulation Stop Logic
+Goal: Stop everything cleanly when someone dies or all ate enough
+Tasks:
+1. Add check_all_ate() in monitor
+2. Add simulation_stopped() checker in routine loop
+3. Make all threads check death flag regularly
+4. Add mutex for death flag access
+5. Test: ./philo 5 800 200 200 7 (stop after 7 meals each)
+Files: monitor.c, routine.c
+Functions: check_all_ate(), simulation_stopped()
+
+Phase 10: Memory Cleanup
+Goal: No leaks, clean exit
+Tasks:
+1. Create cleanup.c
+2. Write destroy_mutexes()
+3. Write free_data()
+4. Call cleanup before exit
+5. Test with valgrind: no leaks, no errors
+Files: cleanup.c
+Functions: cleanup_all(), destroy_mutexes(), free_data()
+
+Phase 11: Edge Cases & Stress Testing
+Goal: Handle weird inputs, tight timing
+Tasks:
+1. Test: 1 philosopher (must die)
+2. Test: 2 philosophers edge case
+3. Test: 200 philosophers (stress test)
+4. Test: very low times (310ms to die, 200ms eat)
+5. Add protection against negative timestamps
+6. TODO: Review all race conditions
+
+Phase 12: Final Polish
+Goal: Norminette perfect, no debug prints
+Tasks:
+1. Remove ALL DEBUG prints
+2. Remove ALL TODO comments
+3. Run norminette on everything
+4. Split functions >25 lines
+5. Ensure <=5 functions per file
+6. Final valgrind check
+7. Test all edge cases again
+
+File Organization Preview:
+philo/
+├── Makefile
+├── philo.h          (structs, prototypes)
+├── main.c           (main, thread creation)
+├── parsing.c        (arg validation)
+├── init.c           (data initialization)
+├── utils.c          (time, print, helpers)
+├── routine.c        (philosopher main loop)
+├── actions.c        (eat, sleep, think, forks)
+├── monitor.c        (death checker, meal counter)
+└── cleanup.c        (free everything)
+Each file: max 5 functions, each function: max 25 lines
+
+Ready to Start Phase 1?
+We'll create the directory, write a basic Makefile, define our structs in philo.h, and make a "Hello World" main.c that compiles.
