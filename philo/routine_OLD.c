@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: rdellaza <rdellaza@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/11/13 18:20:27 by rdellaza          #+#    #+#             */
-/*   Updated: 2025/11/13 18:21:51 by rdellaza         ###   ########.fr       */
+/*   Created: 2025/11/13 17:35:13 by rdellaza          #+#    #+#             */
+/*   Updated: 2025/11/13 18:02:45 by rdellaza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,35 +15,34 @@
 /*
 ** Main philosopher routine
 ** This is what each philosopher thread will execute
-** The cycle: THINK -> EAT -> SLEEP -> repeat
 ** arg: pointer to the philosopher struct (t_philo *)
 ** Returns NULL when done
 */
 void	*philosopher_routine(void *arg)
 {
 	t_philo	*philo;
-	int		i;
 
 	/* Cast the void pointer back to t_philo pointer */
 	philo = (t_philo *)arg;
 	printf("DEBUG: Philo %d thread started\n", philo->id);
-	/* Initialize last meal time to simulation start */
-	philo->last_meal_time = philo->data->start_time;
-	/* Small stagger: even philos start slightly delayed */
-	/* This helps prevent all philos grabbing forks simultaneously */
-	if (philo->id % 2 == 0)
-		ft_usleep(50);
-	/* TEST: Run cycle 3 times for now */
-	i = 0;
-	while (i < 3)
-	{
-		/* TODO: Check if someone died before continuing */
-		philo_think(philo);
-		philo_eat(philo);
-		philo_sleep(philo);
-		i++;
-	}
-	printf("DEBUG: Philo %d completed 3 cycles, ending\n", philo->id);
+	
+	/* Test thinking */
+	print_status(philo, "is thinking");
+	/* Small delay so threads don't all start at exact same time */
+	ft_usleep(50);
+
+	/* TEST: Take forks */
+	take_forks(philo);
+	/* TEST: Hold forks briefly, then drop them */
+	print_status(philo, "is holding forks (testing)");
+	ft_usleep(100);
+	/* TEST: Drop forks */
+	drop_forks(philo);
+	/* TODO: Add eating action */
+	/* TODO: Add sleeping action */
+	/* TODO: Add main loop for continuous eating/sleeping/thinking */
+
+	printf("DEBUG: Philo %d thread ending\n", philo->id);
 	return (NULL);
 }
 
@@ -56,7 +55,7 @@ int	create_threads(t_data *data)
 {
 	int	i;
 
-	printf("DEBUG: Creating philos threads...\n");
+	printf("DEBUG: Creating philo threads...\n");
 	i = 0;
 	while (i < data->nb_philos)
 	{
@@ -68,6 +67,8 @@ int	create_threads(t_data *data)
 				data->philos[i].id);
 			return (0);
 		}
+		printf("DEBUG: Thread created for philo %d\n",
+			data->philos[i].id);
 		i++;
 	}
 	printf("DEBUG: All %d threads created!\n", data->nb_philos);
@@ -75,7 +76,7 @@ int	create_threads(t_data *data)
 }
 
 /*
-** Wait for all philos threads to finish
+** Wait for all philosopher threads to finish
 ** data: pointer to main data structure
 ** Returns 1 on success, 0 on failure
 */
@@ -94,6 +95,7 @@ int	join_threads(t_data *data)
 				data->philos[i].id);
 			return (0);
 		}
+		printf("DEBUG: Thread %d joined\n", data->philos[i].id);
 		i++;
 	}
 	printf("DEBUG: All threads joined!\n");
