@@ -6,7 +6,7 @@
 /*   By: rdellaza <rdellaza@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 15:26:53 by rdellaza          #+#    #+#             */
-/*   Updated: 2025/11/13 15:53:26 by rdellaza         ###   ########.fr       */
+/*   Updated: 2025/11/13 16:24:27 by rdellaza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,7 +114,7 @@ int	parse_arguments(int argc, char **argv, t_data *data)
 		return (0);
 	}
 	/* DEBUG: Print parsed values */
-	printf("DEBUG: ✓ Arguments parsed successfully:\n");
+	printf("DEBUG: Arguments parsed successfully:\n");
 	printf("  - Philosophers: %d\n", data->nb_philos);
 	printf("  - Time to die: %d ms\n", data->time_to_die);
 	printf("  - Time to eat: %d ms\n", data->time_to_eat);

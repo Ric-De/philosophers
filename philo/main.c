@@ -6,7 +6,7 @@
 /*   By: rdellaza <rdellaza@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 14:55:01 by rdellaza          #+#    #+#             */
-/*   Updated: 2025/11/13 15:45:02 by rdellaza         ###   ########.fr       */
+/*   Updated: 2025/11/13 16:20:07 by rdellaza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,8 +24,14 @@ int	main(int argc, char **argv)
 		return (1);
 
 	printf("DEBUG: Arguments validated successfully!\n");
+	/* Initialize all data structures */
+	if (!init_data(&data))
+	{
+		printf("Error: Initialization failed\n");
+		/* TODO: Cleanup any partial initialization */
+		return (1);
+	}
 
-	/* TODO: Initialize mutexes and philosophers */
 	/* TODO: Create philosopher threads */
 	/* TODO: Monitor for deaths */
 	/* TODO: Join threads and cleanup */
