@@ -6,7 +6,7 @@
 #    By: rdellaza <rdellaza@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/11/13 14:59:33 by rdellaza          #+#    #+#              #
-#    Updated: 2025/11/13 16:20:34 by rdellaza         ###   ########.fr        #
+#    Updated: 2025/11/13 16:38:54 by rdellaza         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -24,7 +24,8 @@ OBJ_DIR = obj
 # Source files (add all here on the go)
 SRCS = main.c \
        parsing.c \
-       init.c
+       init.c \
+       cleanup.c
 
 # TODO: Add more source files above this line dude
 

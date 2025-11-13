@@ -6,7 +6,7 @@
 /*   By: rdellaza <rdellaza@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 14:55:01 by rdellaza          #+#    #+#             */
-/*   Updated: 2025/11/13 16:20:07 by rdellaza         ###   ########.fr       */
+/*   Updated: 2025/11/13 16:38:34 by rdellaza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,13 +28,18 @@ int	main(int argc, char **argv)
 	if (!init_data(&data))
 	{
 		printf("Error: Initialization failed\n");
-		/* TODO: Cleanup any partial initialization */
+		/* Cleanup any partial initialization */
+		cleanup_mutexes(&data);
+		cleanup_data(&data);
 		return (1);
 	}
 
 	/* TODO: Create philosopher threads */
 	/* TODO: Monitor for deaths */
-	/* TODO: Join threads and cleanup */
+	/* TODO: Join threads */
+       	/* Cleanup everything before exit */
+	cleanup_mutexes(&data);
+	cleanup_data(&data);
 
 	printf("DEBUG: ========== PHILOSOPHERS END ==========\n");
 

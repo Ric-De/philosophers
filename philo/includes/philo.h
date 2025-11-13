@@ -6,7 +6,7 @@
 /*   By: rdellaza <rdellaza@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 14:46:20 by rdellaza          #+#    #+#             */
-/*   Updated: 2025/11/13 16:28:15 by rdellaza         ###   ########.fr       */
+/*   Updated: 2025/11/13 16:34:20 by rdellaza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,5 +63,9 @@ int		init_philosophers(t_data *data);
 int		parse_arguments(int argc, char **argv, t_data *data);
 int		ft_atoi(const char *str);
 int		is_valid_number(char *str);
+
+/* =============== CLEANUP =============== */
+void	cleanup_mutexes(t_data *data);
+void	cleanup_data(t_data *data);
 
 #endif
