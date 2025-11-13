@@ -6,7 +6,7 @@
 #    By: rdellaza <rdellaza@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/11/13 14:59:33 by rdellaza          #+#    #+#              #
-#    Updated: 2025/11/13 18:03:16 by rdellaza         ###   ########.fr        #
+#    Updated: 2025/11/13 18:40:48 by rdellaza         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -28,7 +28,8 @@ SRCS = main.c \
        cleanup.c \
        utils.c \
        routine.c \
-       actions.c
+       actions.c \
+       monitor.c
 
 # TODO: Add more source files above this line dude
 

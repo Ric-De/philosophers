@@ -6,7 +6,7 @@
 /*   By: rdellaza <rdellaza@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 14:55:01 by rdellaza          #+#    #+#             */
-/*   Updated: 2025/11/13 17:45:53 by rdellaza         ###   ########.fr       */
+/*   Updated: 2025/11/13 18:42:31 by rdellaza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 int	main(int argc, char **argv)
 {
 	t_data	data;
+	pthread_t	monitor;
 //	long	test_start;
 //	long	test_end;
 
@@ -70,7 +71,21 @@ int	main(int argc, char **argv)
 		return (1);
 	}
 	
-	/* Wait for all threads to finish */
+	/* Create monitor thread */
+	if (pthread_create(&monitor, NULL, monitor_routine, &data) != 0)
+	{
+		printf("Error: Monitor thread creation failed\n");
+		cleanup_mutexes(&data);
+		cleanup_data(&data);
+		return (1);
+	}
+	printf("DEBUG: Monitor thread created\n");
+	
+	/* Wait for monitor thread (it stops when a 'big head' dies) */
+	pthread_join(monitor, NULL);
+	printf("DEBUG: Monitor thread joined\n");
+	
+	/* Wait for all philo threads to finish */
 	if (!join_threads(&data))
 	{
 		printf("Error: Thread joining failed\n");
@@ -79,11 +94,7 @@ int	main(int argc, char **argv)
 		return (1);
 	}
 
-	/* TODO: Create philosopher threads */
-	/* TODO: Monitor for deaths */
-	/* TODO: Join threads */
-
-       	/* Cleanup everything before exit */
+	/* Cleanup everything before exit */
 	cleanup_mutexes(&data);
 	cleanup_data(&data);
 

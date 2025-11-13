@@ -6,7 +6,7 @@
 /*   By: rdellaza <rdellaza@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 18:20:27 by rdellaza          #+#    #+#             */
-/*   Updated: 2025/11/13 18:21:51 by rdellaza         ###   ########.fr       */
+/*   Updated: 2025/11/13 18:36:28 by rdellaza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,34 +16,40 @@
 ** Main philosopher routine
 ** This is what each philosopher thread will execute
 ** The cycle: THINK -> EAT -> SLEEP -> repeat
+** Stops when someone dies
 ** arg: pointer to the philosopher struct (t_philo *)
 ** Returns NULL when done
 */
 void	*philosopher_routine(void *arg)
 {
 	t_philo	*philo;
-	int		i;
 
 	/* Cast the void pointer back to t_philo pointer */
 	philo = (t_philo *)arg;
 	printf("DEBUG: Philo %d thread started\n", philo->id);
+	
 	/* Initialize last meal time to simulation start */
 	philo->last_meal_time = philo->data->start_time;
+	
 	/* Small stagger: even philos start slightly delayed */
 	/* This helps prevent all philos grabbing forks simultaneously */
 	if (philo->id % 2 == 0)
 		ft_usleep(50);
-	/* TEST: Run cycle 3 times for now */
-	i = 0;
-	while (i < 3)
+	
+	/* Main loop: keep cycling until someone dies */
+	while (!is_simulation_over(philo->data))
 	{
-		/* TODO: Check if someone died before continuing */
 		philo_think(philo);
+		/* Check again before eating (philo might die while thinking) */
+		if (is_simulation_over(philo->data))
+			break ;
 		philo_eat(philo);
+		if (is_simulation_over(philo->data))
+			break ;
 		philo_sleep(philo);
-		i++;
 	}
-	printf("DEBUG: Philo %d completed 3 cycles, ending\n", philo->id);
+	printf("DEBUG: Philo %d detected end of simulation, exiting\n",
+		philo->id);
 	return (NULL);
 }
 
@@ -56,7 +62,7 @@ int	create_threads(t_data *data)
 {
 	int	i;
 
-	printf("DEBUG: Creating philos threads...\n");
+	printf("DEBUG: Creating philo threads...\n");
 	i = 0;
 	while (i < data->nb_philos)
 	{
@@ -75,7 +81,7 @@ int	create_threads(t_data *data)
 }
 
 /*
-** Wait for all philos threads to finish
+** Wait for all philo threads to finish
 ** data: pointer to main data structure
 ** Returns 1 on success, 0 on failure
 */

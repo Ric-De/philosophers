@@ -6,7 +6,7 @@
 /*   By: rdellaza <rdellaza@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 14:46:20 by rdellaza          #+#    #+#             */
-/*   Updated: 2025/11/13 18:14:36 by rdellaza         ###   ########.fr       */
+/*   Updated: 2025/11/13 18:27:17 by rdellaza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,6 +80,11 @@ void	drop_forks(t_philo *philo);
 void	philo_eat(t_philo *philo);
 void	philo_sleep(t_philo *philo);
 void	philo_think(t_philo *philo);
+
+/* =============== MONITOR =============== */
+void	*monitor_routine(void *arg);
+int		check_death(t_data *data);
+int		is_simulation_over(t_data *data);
 
 /* =============== CLEANUP =============== */
 void	cleanup_mutexes(t_data *data);
