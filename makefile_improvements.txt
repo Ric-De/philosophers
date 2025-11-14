@@ -1,0 +1,222 @@
+NEW MAKEFILE BUILDING
+
+
+# ============================================================================
+# PROGRAM NAME
+# ============================================================================
+NAME = philo
+
+# ============================================================================
+# COMPILER & FLAGS
+# ============================================================================
+CC = cc
+CFLAGS = -Wall -Wextra -Werror -pthread -g
+CFLAGS += -MMD -MP
+
+# Optional: Thread sanitizer for debugging (make SANITIZE=1)
+ifdef SANITIZE
+	CFLAGS += -fsanitize=thread
+endif
+
+# ============================================================================
+# DIRECTORIES
+# ============================================================================
+OBJ_DIR = obj
+INC_DIR = includes
+
+# ============================================================================
+# INCLUDE PATHS
+# ============================================================================
+INCLUDES = -I$(INC_DIR)
+
+# ============================================================================
+# SOURCE FILES (NO WILDCARDS - explicit list)
+# ============================================================================
+SRCS = main.c \
+       parsing.c \
+       init.c \
+       cleanup.c \
+       utils.c \
+       routine.c \
+       actions.c \
+       monitor.c
+
+# ============================================================================
+# OBJECT & DEPENDENCY FILES
+# ============================================================================
+OBJS = $(SRCS:%.c=$(OBJ_DIR)/%.o)
+DEPS = $(OBJS:.o=.d)
+
+# ============================================================================
+# COLORS FOR PRETTY OUTPUT
+# ============================================================================
+GREEN = \033[0;32m
+YELLOW = \033[0;33m
+RED = \033[0;31m
+RESET = \033[0m
+
+# ============================================================================
+# MAIN RULES
+# ============================================================================
+
+all: $(NAME)
+
+# Link the final executable
+$(NAME): $(OBJS)
+	@echo "$(YELLOW)🔗 Linking $(NAME)...$(RESET)"
+	@$(CC) $(CFLAGS) $(OBJS) -o $(NAME)
+	@echo "$(GREEN)✅ $(NAME) ready!$(RESET)"
+
+# Compile object files with dependency generation
+$(OBJ_DIR)/%.o: %.c Makefile
+	@mkdir -p $(dir $@)
+	@echo "$(YELLOW)🔨 Compiling $<...$(RESET)"
+	@$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+
+# All objects depend on header - if header changes, recompile everything
+$(OBJS): $(INC_DIR)/philo.h Makefile
+
+# ============================================================================
+# CLEAN RULES
+# ============================================================================
+
+clean:
+	@echo "$(RED)🧹 Cleaning object files...$(RESET)"
+	@rm -rf $(OBJ_DIR)
+
+fclean: clean
+	@echo "$(RED)🧹 Removing $(NAME)...$(RESET)"
+	@rm -f $(NAME)
+
+re: fclean all
+
+# ============================================================================
+# PHONY TARGETS
+# ============================================================================
+
+.PHONY: all clean fclean re
+
+# ============================================================================
+# OPTIONAL: Debug build with thread sanitizer
+# ============================================================================
+
+sanitize:
+	@$(MAKE) SANITIZE=1
+
+.PHONY: sanitize
+
+# ============================================================================
+# DEPENDENCIES (include auto-generated dependency files)
+# ============================================================================
+
+-include $(DEPS)
+
+🎯 KEY FEATURES (Following Your Example):
+✅ 1. No Wildcards
+makefile# ❌ FORBIDDEN: SRCS = $(wildcard *.c)
+# ✅ CORRECT: Explicit list
+SRCS = main.c \
+       parsing.c \
+       init.c \
+       ...
+✅ 2. No Relinks
+makefile# Uses -MMD -MP flags for automatic dependency tracking
+CFLAGS += -MMD -MP
+
+# Includes generated .d files
+-include $(DEPS)
+This means:
+
+If you modify philo.h → all .c files recompile
+If you modify main.c → only main.o recompiles
+No unnecessary relinking!
+
+✅ 3. Proper Directory Structure
+makefileOBJ_DIR = obj     # Objects in separate directory
+INC_DIR = includes # Headers in includes/
+✅ 4. Header Dependency
+makefile# All objects depend on the header
+$(OBJS): $(INC_DIR)/philo.h Makefile
+If philo.h changes → everything recompiles (correct!)
+✅ 5. Mkdir Safety
+makefile$(OBJ_DIR)/%.o: %.c Makefile
+	@mkdir -p $(dir $@)  # Creates obj/ if doesn't exist
+✅ 6. Optional Thread Sanitizer
+makefile# Build with: make sanitize
+# Or: make SANITIZE=1
+ifdef SANITIZE
+	CFLAGS += -fsanitize=thread
+endif
+
+📋 MAKEFILE RULES REQUIRED BY SUBJECT:
+✅ $(NAME) - Creates the executable
+✅ all - Default target
+✅ clean - Removes object files
+✅ fclean - Removes everything
+✅ re - Rebuild from scratch
+
+🧪 TESTING THE MAKEFILE:
+bash# First build
+make
+# → Compiles all .c files → Links philo
+
+# Modify main.c
+touch main.c
+make
+# → Only recompiles main.o → Relinks philo (FAST!)
+
+# Modify philo.h
+touch includes/philo.h
+make
+# → Recompiles ALL .o files → Relinks philo (CORRECT!)
+
+# Nothing changed
+make
+# → "philo is up to date" (NO RELINK!)
+
+# Clean rebuild
+make re
+# → Removes everything → Rebuilds from scratch
+
+🎨 USAGE:
+bashmake              # Normal build
+make clean        # Remove objects
+make fclean       # Remove everything
+make re           # Rebuild from scratch
+make sanitize     # Build with thread sanitizer
+```
+
+---
+
+## ✅ **WHY THIS IS BETTER:**
+
+| Feature | Old Simple Makefile | New Professional Makefile |
+|---------|-------------------|--------------------------|
+| Relinks unnecessarily | ❌ Yes | ✅ No |
+| Wildcard expansion | ❌ Maybe | ✅ Never |
+| Dependency tracking | ❌ Manual | ✅ Automatic |
+| Colored output | ❌ No | ✅ Yes |
+| Directory organization | ❌ Messy | ✅ Clean |
+| Norminette compliant | ✅ Yes | ✅ Yes |
+
+---
+
+## 📁 **YOUR PROJECT STRUCTURE SHOULD BE:**
+```
+philo/
+├── Makefile          ← This new Makefile
+├── includes/
+│   └── philo.h
+├── obj/              ← Created automatically
+│   ├── main.o
+│   ├── main.d        ← Auto-generated dependencies
+│   ├── parsing.o
+│   └── ...
+├── main.c
+├── parsing.c
+├── init.c
+├── cleanup.c
+├── utils.c
+├── routine.c
+├── actions.c
+└── monitor.c

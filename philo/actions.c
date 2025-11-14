@@ -6,7 +6,7 @@
 /*   By: rdellaza <rdellaza@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 17:51:46 by rdellaza          #+#    #+#             */
-/*   Updated: 2025/11/14 14:14:11 by rdellaza         ###   ########.fr       */
+/*   Updated: 2025/11/14 15:36:05 by rdellaza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -120,10 +120,17 @@ void	philo_eat(t_philo *philo)
 	print_status(philo, "is eating");
 	/* Eat for the specified time */
 	ft_usleep(philo->data->time_to_eat);
-	/* Increment meal counter */
+	
+	/* Increment meal counter - PROTECTED by mutex */
+	pthread_mutex_lock(&philo->meal_mutex);
 	philo->meals_eaten++;
-	printf("DEBUG: Philo %d meteu rango %d times\n",
-			philo->id, philo->meals_eaten);
+	pthread_mutex_unlock(&philo->meal_mutex);
+
+	/* Increment meal counter 
+	philo->meals_eaten++;
+	printf("DEBUG: Philo %d meteu rango %d times\n", philo->id, philo->meals_eaten);
+	*/
+
 	/* Drop forks */
 	drop_forks(philo);
 }

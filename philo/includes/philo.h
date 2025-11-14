@@ -6,7 +6,7 @@
 /*   By: rdellaza <rdellaza@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 14:46:20 by rdellaza          #+#    #+#             */
-/*   Updated: 2025/11/14 14:05:24 by rdellaza         ###   ########.fr       */
+/*   Updated: 2025/11/14 15:23:08 by rdellaza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,6 +86,7 @@ void	philo_think(t_philo *philo);
 void	*monitor_routine(void *arg);
 int		check_death(t_data *data);
 int		is_simulation_over(t_data *data);
+int		check_all_ate(t_data *data);
 
 /* =============== CLEANUP =============== */
 void	cleanup_mutexes(t_data *data);

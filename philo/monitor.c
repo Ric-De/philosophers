@@ -6,7 +6,7 @@
 /*   By: rdellaza <rdellaza@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 18:27:31 by rdellaza          #+#    #+#             */
-/*   Updated: 2025/11/14 14:16:29 by rdellaza         ###   ########.fr       */
+/*   Updated: 2025/11/14 15:44:06 by rdellaza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,6 +114,47 @@ int	check_death(t_data *data)
 */
 
 /*
+** Check if all philosophers have eaten enough times
+** Only relevant when must_eat_count is set (not -1)
+** Returns 1 if all philosophers ate >= must_eat_count, 0 otherwise
+*/
+int	check_all_ate(t_data *data)
+{
+	int	i;
+	int	all_ate_enough;
+
+	/* Only check if must_eat_count is set (not unlimited) */
+	if (data->must_eat_count == -1)
+		return (0);
+	/* Assume all ate enough until we find one who didn't */
+	all_ate_enough = 1;
+	i = 0;
+	while (i < data->nb_philos)
+	{
+		/* Read meals_eaten with mutex protection */
+		pthread_mutex_lock(&data->philos[i].meal_mutex);
+		if (data->philos[i].meals_eaten < data->must_eat_count)
+			all_ate_enough = 0;
+		pthread_mutex_unlock(&data->philos[i].meal_mutex);
+		/* Early exit if we found someone who didn't eat enough */
+		if (!all_ate_enough)
+			break ;
+		i++;
+	}
+	/* If everyone ate enough, stop the simulation */
+	if (all_ate_enough)
+	{
+		pthread_mutex_lock(&data->death_mutex);
+		data->someone_died = 1;
+		pthread_mutex_unlock(&data->death_mutex);
+		printf("DEBUG: All philosophers ate %d times, stopping simulation\n",
+			data->must_eat_count);
+		return (1);
+	}
+	return (0);
+}
+
+/*
 ** Monitor thread routine
 ** Continuously checks if any philo has died
 ** Runs until someone dies or all philos finish eating
@@ -134,7 +175,13 @@ void	*monitor_routine(void *arg)
 			printf("DEBUG: Monitor detected death, stopping\n");
 			break ;
 		}
-		/* TODO: Check if all philosophers ate enough times */
+		
+		/* ⭐ NEW: Check if all philosophers ate enough times ⭐ */
+		/* ⭐ BEFORE: Line 137 had TODO comment ⭐ */
+		/* ⭐ AFTER: Added call to check_all_ate() (lines 179-180) ⭐ */
+		if (check_all_ate(data))
+			break ;
+
 		/* Small sleep to avoid burning CPU */
 		/* Check frequently (every 1ms) to meet the 10ms death detection rule */
 		usleep(1000);

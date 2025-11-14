@@ -6,7 +6,7 @@
 /*   By: rdellaza <rdellaza@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 15:26:53 by rdellaza          #+#    #+#             */
-/*   Updated: 2025/11/13 16:24:27 by rdellaza         ###   ########.fr       */
+/*   Updated: 2025/11/14 18:00:54 by rdellaza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,6 +113,14 @@ int	parse_arguments(int argc, char **argv, t_data *data)
 		printf("Error: Time values must be at least 60ms\n");
 		return (0);
 	}
+	
+	/* Fucking 'ZERO' check for number of meals!!! */
+	if (argc == 6 && data->must_eat_count == 0)
+	{
+		printf("Error: Number of times to eat must be at least 1\n");
+		return (0);
+	}
+
 	/* DEBUG: Print parsed values */
 	printf("DEBUG: Arguments parsed successfully:\n");
 	printf("  - Philosophers: %d\n", data->nb_philos);
