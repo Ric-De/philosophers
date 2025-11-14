@@ -6,7 +6,7 @@
 /*   By: rdellaza <rdellaza@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 16:34:52 by rdellaza          #+#    #+#             */
-/*   Updated: 2025/11/13 16:36:15 by rdellaza         ###   ########.fr       */
+/*   Updated: 2025/11/14 14:10:57 by rdellaza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,19 @@ void	cleanup_mutexes(t_data *data)
 		}
 		printf("DEBUG: %d fork mutexes destroyed\n", data->nb_philos);
 	}
+
+	/* Destroy meal mutexes */
+	if (data->philos)
+	{
+		i = 0;
+		while (i < data->nb_philos)
+		{
+			pthread_mutex_destroy(&data->philos[i].meal_mutex);
+			i++;
+		}
+		printf("DEBUG: %d meal mutexes destroyed\n", data->nb_philos);
+	}
+
 	/* Destroy print mutex */
 	pthread_mutex_destroy(&data->print_mutex);
 	printf("DEBUG: Print mutex destroyed\n");

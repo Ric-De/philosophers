@@ -6,7 +6,7 @@
 /*   By: rdellaza <rdellaza@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 18:27:31 by rdellaza          #+#    #+#             */
-/*   Updated: 2025/11/13 19:00:29 by rdellaza         ###   ########.fr       */
+/*   Updated: 2025/11/14 14:16:29 by rdellaza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ int	is_simulation_over(t_data *data)
 }
 
 /*
-** Check if any philo has died from starvation
+** Check if any philosopher has died from starvation
 ** A philosopher dies if: (current_time - last_meal_time) > time_to_die
 ** Returns 1 if someone died, 0 if everyone is alive
 */
@@ -37,15 +37,20 @@ int	check_death(t_data *data)
 	int		i;
 	long	current_time;
 	long	time_since_meal;
+	long	last_meal;
 
 	i = 0;
 	while (i < data->nb_philos)
 	{
 		current_time = get_time();
-		/* Calculate how long since this philo last ate */
-		/* TODO: Protect last_meal_time with mutex */
-		time_since_meal = current_time - data->philos[i].last_meal_time;
-				
+		/* Read last_meal_time with mutex protection */
+		pthread_mutex_lock(&data->philos[i].meal_mutex);
+		last_meal = data->philos[i].last_meal_time;
+		pthread_mutex_unlock(&data->philos[i].meal_mutex);
+		
+		/* Calculate how long since this philosopher last ate */
+		time_since_meal = current_time - last_meal;
+		
 		/* Check if philosopher has starved */
 		if (time_since_meal > data->time_to_die)
 		{
@@ -66,6 +71,47 @@ int	check_death(t_data *data)
 	}
 	return (0);
 }
+
+/*			OLDest
+** Check if any philo has died from starvation
+** A philosopher dies if: (current_time - last_meal_time) > time_to_die
+** Returns 1 if someone died, 0 if everyone is alive
+
+int	check_death(t_data *data)
+{
+	int		i;
+	long	current_time;
+	long	time_since_meal;
+
+	i = 0;
+	while (i < data->nb_philos)
+	{
+		current_time = get_time();
+		// Calculate how long since this philo last ate
+		// TODO: Protect last_meal_time with mutex
+		time_since_meal = current_time - data->philos[i].last_meal_time;
+				
+		// Check if philosopher has starved
+		if (time_since_meal > data->time_to_die)
+		{
+			// Lock print mutex to print death message
+			pthread_mutex_lock(&data->print_mutex);
+			printf("%ld %d died\n",
+				current_time - data->start_time, data->philos[i].id);
+			pthread_mutex_unlock(&data->print_mutex);
+			// Set death flag
+			pthread_mutex_lock(&data->death_mutex);
+			data->someone_died = 1;
+			pthread_mutex_unlock(&data->death_mutex);
+			printf("DEBUG: Monitor detected death of philo %d\n",
+				data->philos[i].id);
+			return (1);
+		}
+		i++;
+	}
+	return (0);
+}
+*/
 
 /*
 ** Monitor thread routine

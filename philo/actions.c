@@ -6,7 +6,7 @@
 /*   By: rdellaza <rdellaza@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 17:51:46 by rdellaza          #+#    #+#             */
-/*   Updated: 2025/11/13 19:53:49 by rdellaza         ###   ########.fr       */
+/*   Updated: 2025/11/14 14:14:11 by rdellaza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,9 +105,17 @@ void	philo_eat(t_philo *philo)
 	/* Check if simulation ended while taking forks */
 	/* Update last meal time - CRITICAL for death detection */
 	/* TODO: Protect this with a mutex later */
+//	philo->last_meal_time = get_time();
+//	printf("DEBUG: Philo %d last_meal_time updated to %ld\n",
+//		philo->id, philo->last_meal_time);
+
+
+	/* Update last meal time - PROTECTED by mutex */ // The fix?!
+	pthread_mutex_lock(&philo->meal_mutex);
 	philo->last_meal_time = get_time();
-	printf("DEBUG: Philo %d last_meal_time updated to %ld\n",
-		philo->id, philo->last_meal_time);
+	pthread_mutex_unlock(&philo->meal_mutex);
+
+	
 	/* Print eating status */
 	print_status(philo, "is eating");
 	/* Eat for the specified time */

@@ -6,7 +6,7 @@
 /*   By: rdellaza <rdellaza@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 14:46:20 by rdellaza          #+#    #+#             */
-/*   Updated: 2025/11/13 18:27:17 by rdellaza         ###   ########.fr       */
+/*   Updated: 2025/11/14 14:05:24 by rdellaza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,7 @@ typedef struct	s_philo
 	int	id;
 	int	meals_eaten;
 	long	last_meal_time;
+	pthread_mutex_t	meal_mutex;	// Added to try to solve issues
 	pthread_t	thread;
 	pthread_mutex_t	*left_fork;
 	pthread_mutex_t	*right_fork;
