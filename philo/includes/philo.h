@@ -76,7 +76,7 @@ int		create_threads(t_data *data);
 int		join_threads(t_data *data);
 
 /* =============== ACTIONS =============== */
-void	take_forks(t_philo *philo);
+int		take_forks(t_philo *philo);
 void	drop_forks(t_philo *philo);
 void	philo_eat(t_philo *philo);
 void	philo_sleep(t_philo *philo);

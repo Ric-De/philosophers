@@ -20,7 +20,7 @@
 ** - Odd-numbered philosophers: take RIGHT fork first, then LEFT
 ** This ensures at least one philosopher can always eat
 */
-void	take_forks(t_philo *philo)
+int	take_forks(t_philo *philo)
 {
 	/* SPECIAL CASE: Only 1 philosopher = only 1 fork = impossible to eat */
 	if (philo->data->nb_philos == 1)
@@ -31,7 +31,7 @@ void	take_forks(t_philo *philo)
 		while (!is_simulation_over(philo->data))
 			usleep(100);
 		pthread_mutex_unlock(philo->left_fork);
-		return ;
+		return (0);
 	}
 	/* Even philosophers: left -> right */
 	if (philo->id % 2 == 0)
@@ -43,7 +43,7 @@ void	take_forks(t_philo *philo)
 		if (is_simulation_over(philo->data))
 		{
 			pthread_mutex_unlock(philo->left_fork);
-			return ;
+			return (0);
 		}
 		/* Lock right fork */
 		pthread_mutex_lock(philo->right_fork);
@@ -59,12 +59,13 @@ void	take_forks(t_philo *philo)
 		if (is_simulation_over(philo->data))
 		{
 			pthread_mutex_unlock(philo->right_fork);
-			return ;
+			return (0);
 		}
 		/* Lock left fork */
 		pthread_mutex_lock(philo->left_fork);
 		print_status(philo, "has taken a fork");
 	}
+	return (1);
 }
 
 /*
@@ -90,23 +91,27 @@ void	drop_forks(t_philo *philo)
 */
 void	philo_eat(t_philo *philo)
 {
-	/* Take both forks */
+	int	got_forks;
+	
+	/* Take both forks - returns 1 if successful, 0 if failed */
+	got_forks = take_forks(philo);
+	
+	/* If we didn't get both forks, return immediately */
+	/* (take_forks already unlocked any forks it grabbed) */
+	if (!got_forks)
+		return ;
+
+/*	THE DOUBLE UNLOCK caused by drop_forks
+	// Take both forks
 	take_forks(philo);
 	
-	/* Check if simulation ended while taking forks */
+	// Check if simulation ended while taking forks
 	if (is_simulation_over(philo->data))
 	{
 		drop_forks(philo);
 		return ;
 	}
-
-	/* Check if simulation ended while taking forks */
-	/* Update last meal time - CRITICAL for death detection */
-	/* TODO: Protect this with a mutex later */
-//	philo->last_meal_time = get_time();
-//		philo->id, philo->last_meal_time);
-
-
+*/
 	/* Update last meal time - PROTECTED by mutex */ // The fix?!
 	pthread_mutex_lock(&philo->meal_mutex);
 	philo->last_meal_time = get_time();
