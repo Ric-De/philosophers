@@ -1,0 +1,35 @@
+Files needing refactorization
+
+
+
+utils.c OK
+
+routine.c OK
+
+cleanup.c OK
+
+parsing.c -> 3 functions. BUT, parse_arguments() is huge need to split in 2 or 3
+		
+		Solution: create helper file!! to throw the other 2 functions
+		and inside parsing.c leave 3 new parsing functions connected
+
+monitor.c -> 4 functions. BUT, check_death() and check_all_ate() are bigger
+		 than 25 lines.
+		
+		Solution: create a helper file to receive some functions.
+
+main.c -> 1 large function.
+		
+		Solution: split it in 3 cool functions
+
+init.c -> 4 functions. BUT, 1 is bigger than 25 lines.
+		
+		Solution: split this crap in 2 functions and leave in the same file.
+
+actions.c -> 5 functions. BUT, take_forks() is bigger than 25 lines
+
+		Solution: create a helper file and split this shit.
+
+
+
+===>>>>		BUILD A PROFESSIONAL MAKEFILE 

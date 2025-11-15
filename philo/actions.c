@@ -22,46 +22,36 @@
 */
 int	take_forks(t_philo *philo)
 {
-	/* SPECIAL CASE: Only 1 philosopher = only 1 fork = impossible to eat */
 	if (philo->data->nb_philos == 1)
 	{
 		pthread_mutex_lock(philo->left_fork);
 		print_status(philo, "has taken a fork");
-		/* Wait forever with only 1 fork - will die */
 		while (!is_simulation_over(philo->data))
 			usleep(100);
 		pthread_mutex_unlock(philo->left_fork);
 		return (0);
 	}
-	/* Even philosophers: left -> right */
 	if (philo->id % 2 == 0)
 	{
-		/* Lock left fork */
 		pthread_mutex_lock(philo->left_fork);
 		print_status(philo, "has taken a fork");
-		/* Check if simulation ended before taking second fork */
 		if (is_simulation_over(philo->data))
 		{
 			pthread_mutex_unlock(philo->left_fork);
 			return (0);
 		}
-		/* Lock right fork */
 		pthread_mutex_lock(philo->right_fork);
 		print_status(philo, "has taken a fork");
 	}
-	/* Odd philosophers: right -> left */
 	else
 	{
-		/* Lock right fork */
 		pthread_mutex_lock(philo->right_fork);
 		print_status(philo, "has taken a fork");
-		/* Check if simulation ended before taking second fork */
 		if (is_simulation_over(philo->data))
 		{
 			pthread_mutex_unlock(philo->right_fork);
 			return (0);
 		}
-		/* Lock left fork */
 		pthread_mutex_lock(philo->left_fork);
 		print_status(philo, "has taken a fork");
 	}
@@ -74,9 +64,7 @@ int	take_forks(t_philo *philo)
 */
 void	drop_forks(t_philo *philo)
 {
-	/* Unlock left fork */
 	pthread_mutex_unlock(philo->left_fork);
-	/* Unlock right fork */
 	pthread_mutex_unlock(philo->right_fork);
 }
 
@@ -93,46 +81,17 @@ void	philo_eat(t_philo *philo)
 {
 	int	got_forks;
 	
-	/* Take both forks - returns 1 if successful, 0 if failed */
 	got_forks = take_forks(philo);
-	
-	/* If we didn't get both forks, return immediately */
-	/* (take_forks already unlocked any forks it grabbed) */
 	if (!got_forks)
 		return ;
-
-/*	THE DOUBLE UNLOCK caused by drop_forks
-	// Take both forks
-	take_forks(philo);
-	
-	// Check if simulation ended while taking forks
-	if (is_simulation_over(philo->data))
-	{
-		drop_forks(philo);
-		return ;
-	}
-*/
-	/* Update last meal time - PROTECTED by mutex */ // The fix?!
 	pthread_mutex_lock(&philo->meal_mutex);
 	philo->last_meal_time = get_time();
 	pthread_mutex_unlock(&philo->meal_mutex);
-
-	
-	/* Print eating status */
 	print_status(philo, "is eating");
-	/* Eat for the specified time */
 	ft_usleep(philo->data->time_to_eat);
-	
-	/* Increment meal counter - PROTECTED by mutex */
 	pthread_mutex_lock(&philo->meal_mutex);
 	philo->meals_eaten++;
 	pthread_mutex_unlock(&philo->meal_mutex);
-
-	/* Increment meal counter 
-	philo->meals_eaten++;
-	*/
-
-	/* Drop forks */
 	drop_forks(philo);
 }
 
@@ -156,82 +115,10 @@ void	philo_think(t_philo *philo)
 	long	think_time;
 
 	print_status(philo, "is thinking");
-	
-	/* For even number of philosophers, add tiny delay */
-	/* For odd number, no delay needed */
 	if (philo->data->nb_philos % 2 == 0)
 		think_time = 1;
 	else
 		think_time = 0;
-		
-	/* Think for calculated time (very short) */
 	if (think_time > 0)
 		ft_usleep(think_time);
 }
-
-/*
-** Philosopher thinks
-** Thinking time helps prevent starvation
-** The time is calculated to balance eating opportunities
-
-void	philo_think(t_philo *philo)
-{
-	long	think_time;
-	long	time_to_eat;
-	long	time_to_sleep;
-
-	print_status(philo, "is thinking");
-	
-	time_to_eat = philo->data->time_to_eat;
-	time_to_sleep = philo->data->time_to_sleep;
-	
-	// Calculate optimal thinking time
-	// If eating takes longer than sleeping, think for the difference
-	think_time = (time_to_eat * 2) - time_to_sleep;
-	
-	// Ensure thinking time is reasonable 
-	if (think_time < 0)
-		think_time = 0;
-	if (think_time > 600)
-		think_time = 600;
-		
-	// Actually think for calculated time 
-	if (think_time > 0)
-		ft_usleep(think_time);
-}
-*/
-/*
-** Philosopher thinks	OLDest
-** Thinking time helps prevent starvation
-** If we have odd number of philos, no special delay needed
-** If we have even number, add small delay to prevent lock-step
-
-void	philo_think(t_philo *philo)
-{
-	long	think_time;
-
-	print_status(philo, "is thinking");
-	// Calculate thinking time to prevent starvation 
-	// If time_to_eat > time_to_sleep, think for the difference 
-	if (philo->data->time_to_eat > philo->data->time_to_sleep)
-		think_time = (philo->data->time_to_eat - philo->data->time_to_sleep);
-	else
-		think_time = 0;
-	// Add small delay for even philosophers to prevent lock-step
-	if (think_time == 0 && philo->data->nb_philos % 2 == 0)
-		think_time = 1;
-	// Think for calculated time 
-	if (think_time > 0)
-		ft_usleep(think_time);
-}
-*/
-
-/*
-** Philosopher thinks
-** Just prints status (no specific time required)
-
-void	philo_think(t_philo *philo)
-{
-	print_status(philo, "is thinking");
-}
-*/

@@ -24,22 +24,12 @@ void	*philosopher_routine(void *arg)
 {
 	t_philo	*philo;
 
-	/* Cast the void pointer back to t_philo pointer */
 	philo = (t_philo *)arg;
-	/* NOTE: last_meal_time already initialized in main before threads start */
-	
-	/* IMPROVED STAGGERING for even number of philosophers */
 	if (philo->data->nb_philos % 2 == 0)
 	{
-		/* Even philosophers wait to let odd philosophers eat first */
 		if (philo->id % 2 == 0)
-		{
-			/* Wait for time_to_eat so odd philos can finish eating */
 			ft_usleep(philo->data->time_to_eat - 10);
-		}
 	}
-	
-	/* Main loop: keep cycling until someone dies */
 	while (!is_simulation_over(philo->data))
 	{
 		philo_eat(philo);
@@ -49,97 +39,11 @@ void	*philosopher_routine(void *arg)
 		if (is_simulation_over(philo->data))
 			break ;
 		philo_think(philo);
-		/* Check again before eating (philosopher might die while thinking) */
 		if (is_simulation_over(philo->data))
 			break ;
 	}
 	return (NULL);
 }
-
-/*
-** Main philosopher routine
-** This is what each philosopher thread will execute
-** The cycle: THINK -> EAT -> SLEEP -> repeat
-** Stops when someone dies
-** arg: pointer to the philosopher struct (t_philo *)
-** Returns NULL when done
-
-void	*philosopher_routine(void *arg)
-{
-	t_philo	*philo;
-
-	// Cast the void pointer back to t_philo pointer 
-	philo = (t_philo *)arg;
-	// NOTE: last_meal_time already initialized in main before threads start 
-	
-	// IMPROVED STAGGERING: Delay based on philosopher position 
-	// This prevents all philosophers from competing for forks at once 
-	if (philo->data->nb_philos > 1)
-	{
-		// Even philosophers wait longer 
-		if (philo->id % 2 == 0)
-		{
-			// Think first to let odd philosophers grab forks 
-			philo_think(philo);
-		}
-	}
-	
-	// Main loop: keep cycling until someone dies 
-	while (!is_simulation_over(philo->data))
-	{
-		philo_eat(philo);
-		if (is_simulation_over(philo->data))
-			break ;
-		philo_sleep(philo);
-		if (is_simulation_over(philo->data))
-			break ;
-		philo_think(philo);
-		// Check again before eating (philosopher might die while thinking)
-		if (is_simulation_over(philo->data))
-			break ;
-	}
-		philo->id);
-	return (NULL);
-}
-*/
-
-/*
-** Main philosopher routine		OLDest
-** This is what each philosopher thread will execute
-** The cycle: THINK -> EAT -> SLEEP -> repeat
-** Stops when someone dies
-** arg: pointer to the philosopher struct (t_philo *)
-** Returns NULL when done
-
-void	*philosopher_routine(void *arg)
-{
-	t_philo	*philo;
-
-	// Cast the void pointer back to t_philo pointer 
-	philo = (t_philo *)arg;
-	
-// =>	// NOTE: last_meal_time already initialized in main before threads start 
-	
-	// Small stagger: even philos start slightly delayed 
-	// This helps prevent all philos grabbing forks simultaneously 
-	if (philo->id % 2 == 0)
-		ft_usleep(50);
-	// Main loop: keep cycling until someone dies 
-	while (!is_simulation_over(philo->data))
-	{
-		philo_think(philo);
-		// Check again before eating (philosopher might die while thinking)
-		if (is_simulation_over(philo->data))
-			break ;
-		philo_eat(philo);
-		if (is_simulation_over(philo->data))
-			break ;
-		philo_sleep(philo);
-	}
-		philo->id);
-	return (NULL);
-}
-*/
 
 /*
 ** Create all philosopher threads
@@ -153,7 +57,6 @@ int	create_threads(t_data *data)
 	i = 0;
 	while (i < data->nb_philos)
 	{
-		/* Create thread: pass philosopher_routine and pointer to philo */
 		if (pthread_create(&data->philos[i].thread, NULL,
 				philosopher_routine, &data->philos[i]) != 0)
 		{
@@ -178,7 +81,6 @@ int	join_threads(t_data *data)
 	i = 0;
 	while (i < data->nb_philos)
 	{
-		/* pthread_join waits for the thread to complete */
 		if (pthread_join(data->philos[i].thread, NULL) != 0)
 		{
 			printf("Error: Failed to join thread for philo %d\n",

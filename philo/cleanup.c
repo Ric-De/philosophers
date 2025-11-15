@@ -20,7 +20,6 @@ void	cleanup_mutexes(t_data *data)
 {
 	int	i;
 
-	/* Destroy fork mutexes */
 	if (data->forks)
 	{
 		i = 0;
@@ -30,8 +29,6 @@ void	cleanup_mutexes(t_data *data)
 			i++;
 		}
 	}
-
-	/* Destroy meal mutexes */
 	if (data->philos)
 	{
 		i = 0;
@@ -41,10 +38,7 @@ void	cleanup_mutexes(t_data *data)
 			i++;
 		}
 	}
-
-	/* Destroy print mutex */
 	pthread_mutex_destroy(&data->print_mutex);
-	/* Destroy death mutex */
 	pthread_mutex_destroy(&data->death_mutex);
 }
 
@@ -54,13 +48,11 @@ void	cleanup_mutexes(t_data *data)
 */
 void	cleanup_data(t_data *data)
 {
-	/* Free forks array */
 	if (data->forks)
 	{
 		free(data->forks);
 		data->forks = NULL;
 	}
-	/* Free philosophers array */
 	if (data->philos)
 	{
 		free(data->philos);

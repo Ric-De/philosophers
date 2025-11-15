@@ -12,58 +12,28 @@
 
 #include "includes/philo.h"
 
-/*  TODO: put more functions here on the go... */
-
 int	main(int argc, char **argv)
 {
 	t_data	data;
 	pthread_t	monitor;
 	int	i;
-//	long	test_start;
-//	long	test_end;
 
-	
-	/* Parse and validate arguments */
 	if (!parse_arguments(argc, argv, &data))
 		return (1);
-
-	
-	/* Initialize all data structures */
 	if (!init_data(&data))
 	{
 		printf("Error: Initialization failed\n");
-		
-		/* Cleanup any partial initialization */
 		cleanup_mutexes(&data);
 		cleanup_data(&data);
 		return (1);
 	}
-
-	/* TEST: Time functions */
-//	data.start_time = get_time();
-//	/* Test ft_usleep accuracy */
-//	test_start = get_time();
-//	ft_usleep(500);
-//	test_end = get_time();
-//	/* Test print_status */
-//	print_status(&data.philos[0], "is testing");
-//	ft_usleep(100);
-//	print_status(&data.philos[1], "is also testing");
-//	ft_usleep(100);
-//	print_status(&data.philos[2], "is testing too");
-
-	/* Set simulation start time */
 	data.start_time = get_time();
-	
-	/* Initialize all philos last_meal_time to start_time */
 	i = 0;
 	while (i < data.nb_philos)
 	{
 		data.philos[i].last_meal_time = data.start_time;
 		i++;
 	}
-
-	/* Create all philosopher threads */
 	if (!create_threads(&data))
 	{
 		printf("Error: Thread creation failed\n");
@@ -71,8 +41,6 @@ int	main(int argc, char **argv)
 		cleanup_data(&data);
 		return (1);
 	}
-	
-	/* Create monitor thread */
 	if (pthread_create(&monitor, NULL, monitor_routine, &data) != 0)
 	{
 		printf("Error: Monitor thread creation failed\n");
@@ -80,11 +48,7 @@ int	main(int argc, char **argv)
 		cleanup_data(&data);
 		return (1);
 	}
-	
-	/* Wait for monitor thread (it stops when a 'big head' dies) */
 	pthread_join(monitor, NULL);
-	
-	/* Wait for all philo threads to finish */
 	if (!join_threads(&data))
 	{
 		printf("Error: Thread joining failed\n");
@@ -92,12 +56,7 @@ int	main(int argc, char **argv)
 		cleanup_data(&data);
 		return (1);
 	}
-
-	/* Cleanup everything before exit */
 	cleanup_mutexes(&data);
 	cleanup_data(&data);
-
-
 	return (0);
-	
 }

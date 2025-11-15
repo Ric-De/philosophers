@@ -21,13 +21,10 @@ int	is_valid_number(char *str)
 	int	i;
 
 	i = 0;
-	/* Skip optional '+' sign at the beginning */
 	if (str[i] == '+')
 		i++;
-	/* String must have at least one digit after '+' */
 	if (str[i] == '\0')
 		return (0);
-	/* Check each character is a digit */
 	while (str[i])
 	{
 		if (str[i] < '0' || str[i] > '9')
@@ -49,10 +46,8 @@ int	ft_atoi(const char *str)
 
 	result = 0;
 	i = 0;
-	/* Skip leading '+' if present */
 	if (str[i] == '+')
 		i++;
-	/* Convert digit by digit */
 	while (str[i] >= '0' && str[i] <= '9')
 	{
 		result = result * 10 + (str[i] - '0');
@@ -70,7 +65,6 @@ int	ft_atoi(const char *str)
 */
 int	parse_arguments(int argc, char **argv, t_data *data)
 {
-	/* Check correct number of arguments (4 or 5 + program name) */
 	if (argc < 5 || argc > 6)
 	{
 		printf("Error: Invalid number of arguments\n");
@@ -78,30 +72,25 @@ int	parse_arguments(int argc, char **argv, t_data *data)
 		printf("[nb_times_must_eat]\n");
 		return (0);
 	}
-	/* Validate each argument is a positive number */
 	if (!is_valid_number(argv[1]) || !is_valid_number(argv[2])
 		|| !is_valid_number(argv[3]) || !is_valid_number(argv[4]))
 	{
 		printf("Error: All arguments must be positive integers\n");
 		return (0);
 	}
-	/* Check optional 5th argument if present */
 	if (argc == 6 && !is_valid_number(argv[5]))
 	{
 		printf("Error: All arguments must be positive integers\n");
 		return (0);
 	}
-	/* Parse the values into our data structure */
 	data->nb_philos = ft_atoi(argv[1]);
 	data->time_to_die = ft_atoi(argv[2]);
 	data->time_to_eat = ft_atoi(argv[3]);
 	data->time_to_sleep = ft_atoi(argv[4]);
-	/* If 5th argument present, parse it; otherwise set to -1 (infinite) */
 	if (argc == 6)
 		data->must_eat_count = ft_atoi(argv[5]);
 	else
 		data->must_eat_count = -1;
-	/* Additional validation: check for reasonable values */
 	if (data->nb_philos <= 0 || data->nb_philos > 200)
 	{
 		printf("Error: Number of philosophers must be 1-200\n");
@@ -113,14 +102,11 @@ int	parse_arguments(int argc, char **argv, t_data *data)
 		printf("Error: Time values must be at least 60ms\n");
 		return (0);
 	}
-	
-	/* Fucking 'ZERO' check for number of meals!!! */
 	if (argc == 6 && data->must_eat_count == 0)
 	{
 		printf("Error: Number of times to eat must be at least 1\n");
 		return (0);
 	}
-
 	printf("  - Philosophers: %d\n", data->nb_philos);
 	printf("  - Time to die: %d ms\n", data->time_to_die);
 	printf("  - Time to eat: %d ms\n", data->time_to_eat);

@@ -19,8 +19,6 @@
 # include <pthread.h>
 # include <sys/time.h>
 
-/* TODO: More structs and the whole prototypes as I build the thing */
-
 /* =============== STRUCTURES =============== */
 
 typedef struct	s_data
@@ -43,7 +41,7 @@ typedef struct	s_philo
 	int	id;
 	int	meals_eaten;
 	long	last_meal_time;
-	pthread_mutex_t	meal_mutex;	// Added to try to solve issues
+	pthread_mutex_t	meal_mutex;
 	pthread_t	thread;
 	pthread_mutex_t	*left_fork;
 	pthread_mutex_t	*right_fork;
@@ -51,8 +49,6 @@ typedef struct	s_philo
 }	t_philo;
 
 /* =============== FUNCTION PROTOTYPES =============== */
-
-/* TODO: For function prototypes I create them */
 
 /* =============== INITIALIZATION =============== */
 int		init_data(t_data *data);

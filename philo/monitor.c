@@ -43,23 +43,16 @@ int	check_death(t_data *data)
 	while (i < data->nb_philos)
 	{
 		current_time = get_time();
-		/* Read last_meal_time with mutex protection */
 		pthread_mutex_lock(&data->philos[i].meal_mutex);
 		last_meal = data->philos[i].last_meal_time;
 		pthread_mutex_unlock(&data->philos[i].meal_mutex);
-		
-		/* Calculate how long since this philosopher last ate */
 		time_since_meal = current_time - last_meal;
-		
-		/* Check if philosopher has starved */
 		if (time_since_meal > data->time_to_die)
 		{
-			/* Lock print mutex to print death message */
 			pthread_mutex_lock(&data->print_mutex);
 			printf("%ld %d died\n",
 				current_time - data->start_time, data->philos[i].id);
 			pthread_mutex_unlock(&data->print_mutex);
-			/* Set death flag */
 			pthread_mutex_lock(&data->death_mutex);
 			data->someone_died = 1;
 			pthread_mutex_unlock(&data->death_mutex);
@@ -69,46 +62,6 @@ int	check_death(t_data *data)
 	}
 	return (0);
 }
-
-/*			OLDest
-** Check if any philo has died from starvation
-** A philosopher dies if: (current_time - last_meal_time) > time_to_die
-** Returns 1 if someone died, 0 if everyone is alive
-
-int	check_death(t_data *data)
-{
-	int		i;
-	long	current_time;
-	long	time_since_meal;
-
-	i = 0;
-	while (i < data->nb_philos)
-	{
-		current_time = get_time();
-		// Calculate how long since this philo last ate
-		// TODO: Protect last_meal_time with mutex
-		time_since_meal = current_time - data->philos[i].last_meal_time;
-				
-		// Check if philosopher has starved
-		if (time_since_meal > data->time_to_die)
-		{
-			// Lock print mutex to print death message
-			pthread_mutex_lock(&data->print_mutex);
-			printf("%ld %d died\n",
-				current_time - data->start_time, data->philos[i].id);
-			pthread_mutex_unlock(&data->print_mutex);
-			// Set death flag
-			pthread_mutex_lock(&data->death_mutex);
-			data->someone_died = 1;
-			pthread_mutex_unlock(&data->death_mutex);
-				data->philos[i].id);
-			return (1);
-		}
-		i++;
-	}
-	return (0);
-}
-*/
 
 /*
 ** Check if all philosophers have eaten enough times
@@ -120,25 +73,20 @@ int	check_all_ate(t_data *data)
 	int	i;
 	int	all_ate_enough;
 
-	/* Only check if must_eat_count is set (not unlimited) */
 	if (data->must_eat_count == -1)
 		return (0);
-	/* Assume all ate enough until we find one who didn't */
 	all_ate_enough = 1;
 	i = 0;
 	while (i < data->nb_philos)
 	{
-		/* Read meals_eaten with mutex protection */
 		pthread_mutex_lock(&data->philos[i].meal_mutex);
 		if (data->philos[i].meals_eaten < data->must_eat_count)
 			all_ate_enough = 0;
 		pthread_mutex_unlock(&data->philos[i].meal_mutex);
-		/* Early exit if we found someone who didn't eat enough */
 		if (!all_ate_enough)
 			break ;
 		i++;
 	}
-	/* If everyone ate enough, stop the simulation */
 	if (all_ate_enough)
 	{
 		pthread_mutex_lock(&data->death_mutex);
@@ -160,23 +108,14 @@ void	*monitor_routine(void *arg)
 	t_data	*data;
 
 	data = (t_data *)arg;
-	/* Keep monitoring until someone dies */
 	while (1)
 	{
-		/* Check if anyone died */
 		if (check_death(data))
 		{
 			break ;
 		}
-		
-		/* NEW: Check if all philosophers ate enough times */
-		/* BEFORE: Line 137 had TODO comment */
-		/* AFTER: Added call to check_all_ate() (lines 179-180) */
 		if (check_all_ate(data))
 			break ;
-
-		/* Small sleep to avoid burning CPU */
-		/* Check frequently (every 1ms) to meet the 10ms death detection rule */
 		usleep(1000);
 	}
 	return (NULL);
