@@ -121,6 +121,8 @@ int	parse_arguments(int argc, char **argv, t_data *data)
 		return (0);
 	}
 
+	/* DEBUG: Print parsed values */
+	printf("DEBUG: Arguments parsed successfully:\n");
 	printf("  - Philosophers: %d\n", data->nb_philos);
 	printf("  - Time to die: %d ms\n", data->time_to_die);
 	printf("  - Time to eat: %d ms\n", data->time_to_eat);

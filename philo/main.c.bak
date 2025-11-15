@@ -22,11 +22,13 @@ int	main(int argc, char **argv)
 //	long	test_start;
 //	long	test_end;
 
+	printf("DEBUG: ========== PHILOSOPHERS START ==========\n");
 	
 	/* Parse and validate arguments */
 	if (!parse_arguments(argc, argv, &data))
 		return (1);
 
+	printf("DEBUG: Arguments validated successfully!\n");
 	
 	/* Initialize all data structures */
 	if (!init_data(&data))
@@ -40,12 +42,17 @@ int	main(int argc, char **argv)
 	}
 
 	/* TEST: Time functions */
+//	printf("\nDEBUG: Testing time functions...\n");
 //	data.start_time = get_time();
+//	printf("DEBUG: Start time set to %ld\n", data.start_time);
 //	/* Test ft_usleep accuracy */
+//	printf("DEBUG: Testing ft_usleep(500ms)...\n");
 //	test_start = get_time();
 //	ft_usleep(500);
 //	test_end = get_time();
+//	printf("DEBUG: Slept for %ld ms (target: 500ms)\n", test_end - test_start);
 //	/* Test print_status */
+//	printf("\nDEBUG: Testing print_status...\n");
 //	print_status(&data.philos[0], "is testing");
 //	ft_usleep(100);
 //	print_status(&data.philos[1], "is also testing");
@@ -54,6 +61,7 @@ int	main(int argc, char **argv)
 
 	/* Set simulation start time */
 	data.start_time = get_time();
+	printf("DEBUG: Simulation start time: %ld\n", data.start_time);
 	
 	/* Initialize all philos last_meal_time to start_time */
 	i = 0;
@@ -62,6 +70,7 @@ int	main(int argc, char **argv)
 		data.philos[i].last_meal_time = data.start_time;
 		i++;
 	}
+	printf("DEBUG: All philos last_meal_time initialized\n");
 
 	/* Create all philosopher threads */
 	if (!create_threads(&data))
@@ -80,9 +89,11 @@ int	main(int argc, char **argv)
 		cleanup_data(&data);
 		return (1);
 	}
+	printf("DEBUG: Monitor thread created\n");
 	
 	/* Wait for monitor thread (it stops when a 'big head' dies) */
 	pthread_join(monitor, NULL);
+	printf("DEBUG: Monitor thread joined\n");
 	
 	/* Wait for all philo threads to finish */
 	if (!join_threads(&data))
@@ -97,6 +108,7 @@ int	main(int argc, char **argv)
 	cleanup_mutexes(&data);
 	cleanup_data(&data);
 
+	printf("DEBUG: ========== PHILOSOPHERS END ==========\n");
 
 	return (0);
 	

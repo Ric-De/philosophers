@@ -20,6 +20,7 @@ void	cleanup_mutexes(t_data *data)
 {
 	int	i;
 
+	printf("DEBUG: Destroying mutexes...\n");
 	/* Destroy fork mutexes */
 	if (data->forks)
 	{
@@ -29,6 +30,7 @@ void	cleanup_mutexes(t_data *data)
 			pthread_mutex_destroy(&data->forks[i]);
 			i++;
 		}
+		printf("DEBUG: %d fork mutexes destroyed\n", data->nb_philos);
 	}
 
 	/* Destroy meal mutexes */
@@ -40,12 +42,15 @@ void	cleanup_mutexes(t_data *data)
 			pthread_mutex_destroy(&data->philos[i].meal_mutex);
 			i++;
 		}
+		printf("DEBUG: %d meal mutexes destroyed\n", data->nb_philos);
 	}
 
 	/* Destroy print mutex */
 	pthread_mutex_destroy(&data->print_mutex);
+	printf("DEBUG: Print mutex destroyed\n");
 	/* Destroy death mutex */
 	pthread_mutex_destroy(&data->death_mutex);
+	printf("DEBUG: Death mutex destroyed\n");
 }
 
 /*
@@ -54,16 +59,20 @@ void	cleanup_mutexes(t_data *data)
 */
 void	cleanup_data(t_data *data)
 {
+	printf("DEBUG: Freeing allocated memory...\n");
 	/* Free forks array */
 	if (data->forks)
 	{
 		free(data->forks);
 		data->forks = NULL;
+		printf("DEBUG: Forks array freed\n");
 	}
 	/* Free philosophers array */
 	if (data->philos)
 	{
 		free(data->philos);
 		data->philos = NULL;
+		printf("DEBUG: Philosophers array freed\n");
 	}
+	printf("DEBUG: Cleanup complete!\n");
 }

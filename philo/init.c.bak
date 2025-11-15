@@ -38,6 +38,7 @@ int	init_forks(t_data *data)
 			/* TODO: Cleanup previously initialized mutexes */
 			return (0);
 		}
+		printf("DEBUG: Fork %d mutex initialized\n", i);
 		i++;
 	}
 	return (1);
@@ -55,6 +56,7 @@ int	init_mutexes(t_data *data)
 		printf("Error: Failed to initialize print mutex\n");
 		return (0);
 	}
+	printf("DEBUG: Print mutex initialized\n");
 	/* Initialize death mutex (protects someone_died flag) */
 	if (pthread_mutex_init(&data->death_mutex, NULL) != 0)
 	{
@@ -62,6 +64,7 @@ int	init_mutexes(t_data *data)
 		pthread_mutex_destroy(&data->print_mutex);
 		return (0);
 	}
+	printf("DEBUG: Death mutex initialized\n");
 	return (1);
 }
 
@@ -101,6 +104,7 @@ int	init_philosophers(t_data *data)
 		data->philos[i].right_fork = &data->forks[(i + 1) % data->nb_philos];
 		/* Link to shared data */
 		data->philos[i].data = data;
+		printf("DEBUG: Philosopher %d initialized ", data->philos[i].id);
 		printf("(left_fork=%d, right_fork=%d)\n", i, (i + 1) % data->nb_philos);
 		i++;
 	}
@@ -114,6 +118,7 @@ int	init_philosophers(t_data *data)
 */
 int	init_data(t_data *data)
 {
+	printf("DEBUG: Initializing data structures...\n");
 	/* Initialize basic values */
 	data->someone_died = 0;
 	data->start_time = 0;
@@ -134,5 +139,6 @@ int	init_data(t_data *data)
 		/* TODO: Cleanup everything before returning */
 		return (0);
 	}
+	printf("DEBUG: All data structures initialized with success!\n");
 	return (1);
 }

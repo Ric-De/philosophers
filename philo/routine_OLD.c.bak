@@ -24,6 +24,7 @@ void	*philosopher_routine(void *arg)
 
 	/* Cast the void pointer back to t_philo pointer */
 	philo = (t_philo *)arg;
+	printf("DEBUG: Philo %d thread started\n", philo->id);
 	
 	/* Test thinking */
 	print_status(philo, "is thinking");
@@ -41,6 +42,7 @@ void	*philosopher_routine(void *arg)
 	/* TODO: Add sleeping action */
 	/* TODO: Add main loop for continuous eating/sleeping/thinking */
 
+	printf("DEBUG: Philo %d thread ending\n", philo->id);
 	return (NULL);
 }
 
@@ -53,6 +55,7 @@ int	create_threads(t_data *data)
 {
 	int	i;
 
+	printf("DEBUG: Creating philo threads...\n");
 	i = 0;
 	while (i < data->nb_philos)
 	{
@@ -64,9 +67,11 @@ int	create_threads(t_data *data)
 				data->philos[i].id);
 			return (0);
 		}
+		printf("DEBUG: Thread created for philo %d\n",
 			data->philos[i].id);
 		i++;
 	}
+	printf("DEBUG: All %d threads created!\n", data->nb_philos);
 	return (1);
 }
 
@@ -79,6 +84,7 @@ int	join_threads(t_data *data)
 {
 	int	i;
 
+	printf("DEBUG: Waiting for threads to finish...\n");
 	i = 0;
 	while (i < data->nb_philos)
 	{
@@ -89,7 +95,9 @@ int	join_threads(t_data *data)
 				data->philos[i].id);
 			return (0);
 		}
+		printf("DEBUG: Thread %d joined\n", data->philos[i].id);
 		i++;
 	}
+	printf("DEBUG: All threads joined!\n");
 	return (1);
 }
