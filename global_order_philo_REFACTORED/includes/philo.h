@@ -1,0 +1,104 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   philo.h                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: rdellaza <rdellaza@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/11/17 02:56:33 by rdellaza          #+#    #+#             */
+/*   Updated: 2025/11/17 02:56:36 by rdellaza         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#ifndef PHILO_H
+# define PHILO_H
+
+# include <stdio.h>
+# include <stdlib.h>
+# include <unistd.h>
+# include <pthread.h>
+# include <sys/time.h>
+
+/* =============== STRUCTURES =============== */
+
+typedef struct s_data
+{
+	int				nb_philos;
+	int				time_to_die;
+	int				time_to_eat;
+	int				time_to_sleep;
+	int				must_eat_count;
+	long			start_time;
+	int				someone_died;
+	pthread_mutex_t	print_mutex;
+	pthread_mutex_t	death_mutex;
+	pthread_mutex_t	*forks;
+	struct s_philo	*philos;
+}	t_data;
+
+typedef struct s_philo
+{
+	int				id;
+	int				meals_eaten;
+	long			last_meal_time;
+	pthread_mutex_t	meal_mutex;
+	pthread_t		thread;
+	pthread_mutex_t	*left_fork;
+	pthread_mutex_t	*right_fork;
+	t_data			*data;
+}	t_philo;
+
+/* =============== INITIALIZATION =============== */
+int		init_data(t_data *data);
+int		init_mutexes(t_data *data);
+int		init_forks(t_data *data);
+int		init_philosophers(t_data *data);
+void	setup_philosopher(t_data *data, int i);
+
+/* =============== PARSING =============== */
+int		parse_arguments(int argc, char **argv, t_data *data);
+int		validate_argument_count(int argc);
+int		parse_and_validate(char **argv, t_data *data);
+
+/* =============== PARSING HELPERS =============== */
+int		ft_atoi(const char *str);
+int		is_valid_number(char *str);
+
+/* =============== UTILS =============== */
+long	get_time(void);
+void	ft_usleep(long milliseconds);
+void	print_status(t_philo *philo, char *status);
+
+/* =============== ROUTINE =============== */
+void	*philosopher_routine(void *arg);
+int		create_threads(t_data *data);
+int		join_threads(t_data *data);
+
+/* =============== ACTIONS =============== */
+int		take_forks(t_philo *philo);
+void	drop_forks(t_philo *philo);
+void	philo_eat(t_philo *philo);
+void	philo_sleep(t_philo *philo);
+void	philo_think(t_philo *philo);
+
+/* =============== FORK HELPERS =============== */
+void	select_fork_order(t_philo *philo, pthread_mutex_t **first,
+			pthread_mutex_t **second);
+int		lock_first_fork(t_philo *philo, pthread_mutex_t *first_fork);
+
+/* =============== MONITOR =============== */
+void	*monitor_routine(void *arg);
+int		check_death(t_data *data);
+int		check_philosopher_death(t_data *data, int i);
+int		is_simulation_over(t_data *data);
+int		check_all_ate(t_data *data);
+
+/* =============== MAIN =============== */
+int		initialize_simulation(int argc, char **argv, t_data *data);
+int		run_simulation(t_data *data);
+
+/* =============== CLEANUP =============== */
+void	cleanup_mutexes(t_data *data);
+void	cleanup_data(t_data *data);
+
+#endif

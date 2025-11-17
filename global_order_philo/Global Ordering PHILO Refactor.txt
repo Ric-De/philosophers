@@ -1,0 +1,25 @@
+Global Ordering PHILO Refactor
+
+
+actions.c ->	5 functions BUT, take_forks() is bigger than 25 lines.
+		Solution: create helper file and split the function. 		(MEDIUM)
+
+cleanup.c ->	2 functions 		(OK)
+
+init.c ->	4 functions BUT init_philosophers() is bigger than 25 lines
+		Solution: split in 2 and hold them in the same file. 		(EASY)
+
+
+main.c ->	1 function BUT main() is huge.
+		Solution: split main() in three functions and hold in same file. (EASY)
+
+monitor.c ->	4 functions BUT check_death() is bigger than 25 lines
+		Solution: split it in two and hold in same file.		(EASY)
+
+parsing.c ->	3 functions BUT parse_arguments() is huge.
+		Solution: create a helper file and throw the ft_atoi() and is_valid_number()
+		Split parse_arguments() in 3 or 4 and maintain in same file. 	(MEDIUM)
+
+routine.c ->	3 functions.		(OK)
+
+utils.c ->	3 functions.		(OK)

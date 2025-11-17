@@ -6,16 +6,16 @@
 /*   By: rdellaza <rdellaza@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 17:51:46 by rdellaza          #+#    #+#             */
-/*   Updated: 2025/11/17 00:05:54 by rdellaza         ###   ########.fr       */
+/*   Updated: 2025/11/17 03:00:17 by rdellaza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "includes/philo.h"
 
 /*
-** GLOBAL ORDERING DEADLOCK PREVENTION
-** Strategy: All philosophers take lower-numbered fork FIRST
-** EXCEPT: Last philosopher reverses order to break the cycle
+** Take forks using global ordering strategy
+** Single philosopher case: wait until simulation ends
+** Normal case: use helper functions for fork selection and locking
 */
 int	take_forks(t_philo *philo)
 {
@@ -31,23 +31,9 @@ int	take_forks(t_philo *philo)
 		pthread_mutex_unlock(philo->left_fork);
 		return (0);
 	}
-	if (philo->id == philo->data->nb_philos)
-	{
-		first_fork = philo->right_fork;
-		second_fork = philo->left_fork;
-	}
-	else
-	{
-		first_fork = philo->left_fork;
-		second_fork = philo->right_fork;
-	}
-	pthread_mutex_lock(first_fork);
-	print_status(philo, "has taken a fork");
-	if (is_simulation_over(philo->data))
-	{
-		pthread_mutex_unlock(first_fork);
+	select_fork_order(philo, &first_fork, &second_fork);
+	if (!lock_first_fork(philo, first_fork))
 		return (0);
-	}
 	pthread_mutex_lock(second_fork);
 	print_status(philo, "has taken a fork");
 	return (1);
@@ -75,7 +61,7 @@ void	drop_forks(t_philo *philo)
 void	philo_eat(t_philo *philo)
 {
 	int	got_forks;
-	
+
 	got_forks = take_forks(philo);
 	if (!got_forks)
 		return ;
