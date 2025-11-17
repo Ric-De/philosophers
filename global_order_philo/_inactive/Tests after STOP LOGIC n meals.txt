@@ -1,0 +1,1126 @@
+Tests after apply the stop logic after n rangos
+
+
+--------------------------------------------------------
+--------------------------------------------------------
+
+/philo   main ●  ./philo 2 800 200 200 3
+DEBUG: ========== PHILOSOPHERS START ==========
+DEBUG: Arguments parsed successfully:
+  - Philosophers: 2
+  - Time to die: 800 ms
+  - Time to eat: 200 ms
+  - Time to sleep: 200 ms
+  - Must eat: 3 times
+DEBUG: Arguments validated successfully!
+DEBUG: Initializing data structures...
+DEBUG: Print mutex initialized
+DEBUG: Death mutex initialized
+DEBUG: Fork 0 mutex initialized
+DEBUG: Fork 1 mutex initialized
+DEBUG: Philosopher 1 initialized (left_fork=0, right_fork=1)
+DEBUG: Philosopher 2 initialized (left_fork=1, right_fork=0)
+DEBUG: All data structures initialized with success!
+DEBUG: Simulation start time: 1763138368618
+DEBUG: All philos last_meal_time initialized
+DEBUG: Creating philo threads...
+DEBUG: All 2 threads created!
+DEBUG: Philosopher 2 thread started
+DEBUG: Monitor thread created
+DEBUG: Philosopher 1 thread started
+0 1 has taken a fork
+DEBUG: Monitor thread started
+0 1 has taken a fork
+0 1 is eating
+DEBUG: Philo 1 dropped LEFT fork
+DEBUG: Philo 1 dropped RIGHT fork
+200 1 is sleeping
+200 2 has taken a fork
+200 2 has taken a fork
+200 2 is eating
+DEBUG: Philo 2 dropped LEFT fork
+DEBUG: Philo 2 dropped RIGHT fork
+400 2 is sleeping
+400 1 is thinking
+401 1 has taken a fork
+401 1 has taken a fork
+401 1 is eating
+600 2 is thinking
+DEBUG: Philo 1 dropped LEFT fork
+DEBUG: Philo 1 dropped RIGHT fork
+601 1 is sleeping
+601 2 has taken a fork
+601 2 has taken a fork
+601 2 is eating
+DEBUG: Philo 2 dropped LEFT fork
+DEBUG: Philo 2 dropped RIGHT fork
+801 2 is sleeping
+801 1 is thinking
+802 1 has taken a fork
+802 1 has taken a fork
+802 1 is eating
+1001 2 is thinking
+DEBUG: Philo 1 dropped LEFT fork
+DEBUG: Philo 1 dropped RIGHT fork
+1002 1 is sleeping
+1002 2 has taken a fork
+1002 2 has taken a fork
+1002 2 is eating
+DEBUG: Philo 2 dropped LEFT fork
+DEBUG: Philo 2 dropped RIGHT fork
+1202 1 is thinking
+1202 2 is sleeping
+DEBUG: All philosophers ate 3 times, stopping simulation
+DEBUG: Monitor thread ending
+DEBUG: Philosopher 1 detected end of simulation, exiting
+DEBUG: Monitor thread joined
+DEBUG: Waiting for threads to finish...
+DEBUG: Philosopher 2 detected end of simulation, exiting
+DEBUG: All threads joined!
+DEBUG: Destroying mutexes...
+DEBUG: 2 fork mutexes destroyed
+DEBUG: 2 meal mutexes destroyed
+DEBUG: Print mutex destroyed
+DEBUG: Death mutex destroyed
+DEBUG: Freeing allocated memory...
+DEBUG: Forks array freed
+DEBUG: Philosophers array freed
+DEBUG: Cleanup complete!
+DEBUG: ========== PHILOSOPHERS END ==========
+
+						VALGRIND
+
+
+philo   main ●  valgrind --leak-check=full ./philo 2 800 200 200 3
+==1473== Memcheck, a memory error detector
+==1473== Copyright (C) 2002-2022, and GNU GPL'd, by Julian Seward et al.
+==1473== Using Valgrind-3.22.0 and LibVEX; rerun with -h for copyright info
+==1473== Command: ./philo 2 800 200 200 3
+==1473==
+DEBUG: ========== PHILOSOPHERS START ==========
+DEBUG: Arguments parsed successfully:
+  - Philosophers: 2
+  - Time to die: 800 ms
+  - Time to eat: 200 ms
+  - Time to sleep: 200 ms
+  - Must eat: 3 times
+DEBUG: Arguments validated successfully!
+DEBUG: Initializing data structures...
+DEBUG: Print mutex initialized
+DEBUG: Death mutex initialized
+DEBUG: Fork 0 mutex initialized
+DEBUG: Fork 1 mutex initialized
+DEBUG: Philosopher 1 initialized (left_fork=0, right_fork=1)
+DEBUG: Philosopher 2 initialized (left_fork=1, right_fork=0)
+DEBUG: All data structures initialized with success!
+DEBUG: Simulation start time: 1763138544050
+DEBUG: All philos last_meal_time initialized
+DEBUG: Creating philo threads...
+DEBUG: All 2 threads created!
+DEBUG: Monitor thread started
+DEBUG: Philosopher 1 thread started
+74 1 has taken a fork
+75 1 has taken a fork
+76 1 is eating
+DEBUG: Philosopher 2 thread started
+DEBUG: Monitor thread created
+DEBUG: Philo 1 dropped LEFT fork
+DEBUG: Philo 1 dropped RIGHT fork
+278 1 is sleeping
+279 2 has taken a fork
+279 2 has taken a fork
+280 2 is eating
+478 1 is thinking
+DEBUG: Philo 2 dropped LEFT fork
+DEBUG: Philo 2 dropped RIGHT fork
+480 1 has taken a fork
+480 2 is sleeping
+480 1 has taken a fork
+480 1 is eating
+680 2 is thinking
+DEBUG: Philo 1 dropped LEFT fork
+DEBUG: Philo 1 dropped RIGHT fork
+680 1 is sleeping
+681 2 has taken a fork
+681 2 has taken a fork
+681 2 is eating
+880 1 is thinking
+DEBUG: Philo 2 dropped LEFT fork
+881 1 has taken a fork
+881 1 has taken a fork
+881 1 is eating
+DEBUG: Philo 2 dropped RIGHT fork
+881 2 is sleeping
+1081 2 is thinking
+DEBUG: Philo 1 dropped LEFT fork
+DEBUG: Philo 1 dropped RIGHT fork
+1081 1 is sleeping
+1082 2 has taken a fork
+1082 2 has taken a fork
+1082 2 is eating
+1281 1 is thinking
+DEBUG: Philo 2 dropped LEFT fork
+DEBUG: Philo 2 dropped RIGHT fork
+1282 1 has taken a fork
+1282 1 has taken a fork
+1282 1 is eating
+1282 2 is sleeping
+DEBUG: All philosophers ate 3 times, stopping simulation
+DEBUG: Monitor thread ending
+DEBUG: Monitor thread joined
+DEBUG: Waiting for threads to finish...
+DEBUG: Philosopher 2 detected end of simulation, exiting
+DEBUG: Philo 1 dropped LEFT fork
+DEBUG: Philo 1 dropped RIGHT fork
+DEBUG: Philosopher 1 detected end of simulation, exiting
+DEBUG: All threads joined!
+DEBUG: Destroying mutexes...
+DEBUG: 2 fork mutexes destroyed
+DEBUG: 2 meal mutexes destroyed
+DEBUG: Print mutex destroyed
+DEBUG: Death mutex destroyed
+DEBUG: Freeing allocated memory...
+DEBUG: Forks array freed
+DEBUG: Philosophers array freed
+DEBUG: Cleanup complete!
+DEBUG: ========== PHILOSOPHERS END ==========
+==1473==
+==1473== HEAP SUMMARY:
+==1473==     in use at exit: 0 bytes in 0 blocks
+==1473==   total heap usage: 6 allocs, 6 frees, 2,096 bytes allocated
+==1473==
+==1473== All heap blocks were freed -- no leaks are possible
+==1473==
+==1473== For lists of detected and suppressed errors, rerun with: -s
+==1473== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+
+
+--------------------------------------------------------
+--------------------------------------------------------
+--------------------------------------------------------
+
+philo   main ●  ./philo 5 800 200 200 7
+DEBUG: ========== PHILOSOPHERS START ==========
+DEBUG: Arguments parsed successfully:
+  - Philosophers: 5
+  - Time to die: 800 ms
+  - Time to eat: 200 ms
+  - Time to sleep: 200 ms
+  - Must eat: 7 times
+DEBUG: Arguments validated successfully!
+DEBUG: Initializing data structures...
+DEBUG: Print mutex initialized
+DEBUG: Death mutex initialized
+DEBUG: Fork 0 mutex initialized
+DEBUG: Fork 1 mutex initialized
+DEBUG: Fork 2 mutex initialized
+DEBUG: Fork 3 mutex initialized
+DEBUG: Fork 4 mutex initialized
+DEBUG: Philosopher 1 initialized (left_fork=0, right_fork=1)
+DEBUG: Philosopher 2 initialized (left_fork=1, right_fork=2)
+DEBUG: Philosopher 3 initialized (left_fork=2, right_fork=3)
+DEBUG: Philosopher 4 initialized (left_fork=3, right_fork=4)
+DEBUG: Philosopher 5 initialized (left_fork=4, right_fork=0)
+DEBUG: All data structures initialized with success!
+DEBUG: Simulation start time: 1763138599690
+DEBUG: All philos last_meal_time initialized
+DEBUG: Creating philo threads...
+DEBUG: Philosopher 1 thread started
+DEBUG: Philosopher 3 thread started
+1 3 has taken a fork
+1 3 has taken a fork
+1 3 is eating
+1 1 has taken a fork
+DEBUG: Philosopher 4 thread started
+DEBUG: All 5 threads created!
+DEBUG: Philosopher 5 thread started
+DEBUG: Monitor thread created
+1 1 has taken a fork
+DEBUG: Monitor thread started
+1 1 is eating
+DEBUG: Philosopher 2 thread started
+DEBUG: Philo 1 dropped LEFT fork
+201 5 has taken a fork
+201 5 has taken a fork
+201 5 is eating
+DEBUG: Philo 1 dropped RIGHT fork
+201 1 is sleeping
+DEBUG: Philo 3 dropped LEFT fork
+DEBUG: Philo 3 dropped RIGHT fork
+201 2 has taken a fork
+201 2 has taken a fork
+201 2 is eating
+201 4 has taken a fork
+201 3 is sleeping
+DEBUG: Philo 2 dropped LEFT fork
+DEBUG: Philo 2 dropped RIGHT fork
+401 1 is thinking
+401 1 has taken a fork
+DEBUG: Philo 5 dropped LEFT fork
+DEBUG: Philo 5 dropped RIGHT fork
+401 5 is sleeping
+401 3 is thinking
+401 4 has taken a fork
+401 4 is eating
+401 1 has taken a fork
+401 1 is eating
+401 2 is sleeping
+601 2 is thinking
+DEBUG: Philo 4 dropped LEFT fork
+DEBUG: Philo 4 dropped RIGHT fork
+601 4 is sleeping
+601 5 is thinking
+601 3 has taken a fork
+601 3 has taken a fork
+601 3 is eating
+DEBUG: Philo 1 dropped LEFT fork
+DEBUG: Philo 1 dropped RIGHT fork
+601 1 is sleeping
+601 5 has taken a fork
+601 5 has taken a fork
+601 5 is eating
+601 2 has taken a fork
+DEBUG: Philo 5 dropped LEFT fork
+DEBUG: Philo 5 dropped RIGHT fork
+801 5 is sleeping
+801 1 is thinking
+801 4 is thinking
+DEBUG: Philo 3 dropped LEFT fork
+DEBUG: Philo 3 dropped RIGHT fork
+801 3 is sleeping
+801 2 has taken a fork
+801 2 is eating
+801 4 has taken a fork
+801 4 has taken a fork
+801 4 is eating
+1001 3 is thinking
+DEBUG: Philo 4 dropped LEFT fork
+1001 1 has taken a fork
+1001 1 has taken a fork
+1001 1 is eating
+DEBUG: Philo 4 dropped RIGHT fork
+1001 4 is sleeping
+1001 3 has taken a fork
+DEBUG: Philo 2 dropped LEFT fork
+DEBUG: Philo 2 dropped RIGHT fork
+1001 2 is sleeping
+1001 3 has taken a fork
+1001 3 is eating
+1001 5 is thinking
+DEBUG: Philo 1 dropped LEFT fork
+DEBUG: Philo 1 dropped RIGHT fork
+1201 5 has taken a fork
+1201 5 has taken a fork
+1201 5 is eating
+1201 4 is thinking
+1201 1 is sleeping
+DEBUG: Philo 3 dropped LEFT fork
+DEBUG: Philo 3 dropped RIGHT fork
+1201 3 is sleeping
+1201 2 is thinking
+1201 2 has taken a fork
+1201 2 has taken a fork
+1201 2 is eating
+1201 4 has taken a fork
+DEBUG: Philo 2 dropped LEFT fork
+DEBUG: Philo 2 dropped RIGHT fork
+1401 4 has taken a fork
+1401 4 is eating
+DEBUG: Philo 5 dropped LEFT fork
+DEBUG: Philo 5 dropped RIGHT fork
+1401 1 is thinking
+1401 1 has taken a fork
+1401 1 has taken a fork
+1401 1 is eating
+1401 5 is sleeping
+1401 3 is thinking
+1401 2 is sleeping
+DEBUG: Philo 1 dropped LEFT fork
+DEBUG: Philo 1 dropped RIGHT fork
+1601 1 is sleeping
+1601 3 has taken a fork
+1601 3 has taken a fork
+1601 3 is eating
+1601 5 is thinking
+1601 5 has taken a fork
+DEBUG: Philo 4 dropped LEFT fork
+DEBUG: Philo 4 dropped RIGHT fork
+1601 4 is sleeping
+1601 2 is thinking
+1601 2 has taken a fork
+1601 5 has taken a fork
+1601 5 is eating
+DEBUG: Philo 5 dropped LEFT fork
+DEBUG: Philo 5 dropped RIGHT fork
+1801 5 is sleeping
+DEBUG: Philo 3 dropped LEFT fork
+DEBUG: Philo 3 dropped RIGHT fork
+1801 3 is sleeping
+1801 2 has taken a fork
+1801 2 is eating
+1801 4 is thinking
+1801 4 has taken a fork
+1801 4 has taken a fork
+1801 4 is eating
+1801 1 is thinking
+2001 3 is thinking
+DEBUG: Philo 2 dropped LEFT fork
+DEBUG: Philo 2 dropped RIGHT fork
+2001 2 is sleeping
+2001 1 has taken a fork
+2001 1 has taken a fork
+2001 1 is eating
+2001 5 is thinking
+DEBUG: Philo 4 dropped LEFT fork
+DEBUG: Philo 4 dropped RIGHT fork
+2001 4 is sleeping
+2001 3 has taken a fork
+2001 3 has taken a fork
+2001 3 is eating
+2201 2 is thinking
+DEBUG: Philo 1 dropped LEFT fork
+DEBUG: Philo 1 dropped RIGHT fork
+2201 1 is sleeping
+2201 5 has taken a fork
+2201 5 has taken a fork
+2201 5 is eating
+DEBUG: Philo 3 dropped LEFT fork
+DEBUG: Philo 3 dropped RIGHT fork
+2201 2 has taken a fork
+2201 2 has taken a fork
+2201 2 is eating
+2201 3 is sleeping
+2201 4 is thinking
+2201 4 has taken a fork
+DEBUG: Philo 5 dropped LEFT fork
+DEBUG: Philo 5 dropped RIGHT fork
+2401 4 has taken a fork
+2401 4 is eating
+2401 1 is thinking
+2401 3 is thinking
+2401 5 is sleeping
+DEBUG: Philo 2 dropped LEFT fork
+DEBUG: Philo 2 dropped RIGHT fork
+2401 2 is sleeping
+2401 1 has taken a fork
+2401 1 has taken a fork
+2401 1 is eating
+DEBUG: Philo 1 dropped LEFT fork
+DEBUG: Philo 1 dropped RIGHT fork
+2601 1 is sleeping
+2601 5 is thinking
+2601 5 has taken a fork
+DEBUG: Philo 4 dropped LEFT fork
+DEBUG: Philo 4 dropped RIGHT fork
+2601 4 is sleeping
+2601 2 is thinking
+2601 2 has taken a fork
+2601 2 has taken a fork
+2601 2 is eating
+2601 3 has taken a fork
+2601 5 has taken a fork
+2601 5 is eating
+2801 4 is thinking
+DEBUG: Philo 5 dropped LEFT fork
+DEBUG: Philo 5 dropped RIGHT fork
+2801 5 is sleeping
+DEBUG: Philo 2 dropped LEFT fork
+DEBUG: Philo 2 dropped RIGHT fork
+2801 2 is sleeping
+2801 3 has taken a fork
+2801 3 is eating
+2801 1 is thinking
+2801 1 has taken a fork
+2801 1 has taken a fork
+2801 1 is eating
+DEBUG: Philo 1 dropped LEFT fork
+DEBUG: Philo 1 dropped RIGHT fork
+3001 1 is sleeping
+3001 5 is thinking
+3001 5 has taken a fork
+3001 5 has taken a fork
+3001 5 is eating
+DEBUG: Philo 3 dropped LEFT fork
+3001 2 is thinking
+3001 2 has taken a fork
+3001 2 has taken a fork
+3001 2 is eating
+DEBUG: Philo 3 dropped RIGHT fork
+3001 3 is sleeping
+3001 4 has taken a fork
+DEBUG: Philo 5 dropped LEFT fork
+DEBUG: Philo 2 dropped LEFT fork
+DEBUG: Philo 2 dropped RIGHT fork
+3201 4 has taken a fork
+DEBUG: Philo 5 dropped RIGHT fork
+3201 5 is sleeping
+3201 3 is thinking
+3201 2 is sleeping
+3201 4 is eating
+3201 1 is thinking
+3201 1 has taken a fork
+3201 1 has taken a fork
+3201 1 is eating
+DEBUG: Philo 1 dropped LEFT fork
+DEBUG: Philo 1 dropped RIGHT fork
+3401 1 is sleeping
+3401 2 is thinking
+3401 2 has taken a fork
+3401 2 has taken a fork
+3401 2 is eating
+DEBUG: Philo 4 dropped LEFT fork
+DEBUG: Philo 4 dropped RIGHT fork
+3401 3 has taken a fork
+3401 4 is sleeping
+3401 5 is thinking
+3401 5 has taken a fork
+3401 5 has taken a fork
+3401 5 is eating
+DEBUG: Philo 5 dropped LEFT fork
+DEBUG: Philo 5 dropped RIGHT fork
+DEBUG: Philo 2 dropped LEFT fork
+DEBUG: Philo 2 dropped RIGHT fork
+3601 4 is thinking
+3601 3 has taken a fork
+3601 3 is eating
+3601 5 is sleeping
+3601 1 is thinking
+3601 1 has taken a fork
+3601 1 has taken a fork
+3601 1 is eating
+3601 2 is sleeping
+3801 5 is thinking
+DEBUG: Philo 1 dropped LEFT fork
+DEBUG: Philo 1 dropped RIGHT fork
+3801 1 is sleeping
+3801 5 has taken a fork
+3801 5 has taken a fork
+3801 5 is eating
+3801 2 is thinking
+3801 2 has taken a fork
+DEBUG: Philo 3 dropped LEFT fork
+DEBUG: Philo 3 dropped RIGHT fork
+3801 3 is sleeping
+3801 2 has taken a fork
+3801 2 is eating
+3801 4 has taken a fork
+4001 1 is thinking
+DEBUG: Philo 2 dropped LEFT fork
+DEBUG: Philo 2 dropped RIGHT fork
+4001 1 has taken a fork
+DEBUG: Philo 5 dropped LEFT fork
+DEBUG: Philo 5 dropped RIGHT fork
+4001 5 is sleeping
+4001 3 is thinking
+4001 4 has taken a fork
+4001 4 is eating
+4001 2 is sleeping
+4001 1 has taken a fork
+4001 1 is eating
+4201 5 is thinking
+4201 5 has taken a fork
+DEBUG: Philo 1 dropped LEFT fork
+DEBUG: Philo 1 dropped RIGHT fork
+4201 1 is sleeping
+4201 2 is thinking
+4201 2 has taken a fork
+4201 2 has taken a fork
+4201 2 is eating
+DEBUG: Philo 4 dropped LEFT fork
+4201 3 has taken a fork
+DEBUG: Philo 4 dropped RIGHT fork
+4201 4 is sleeping
+4201 5 has taken a fork
+4201 5 is eating
+DEBUG: All philosophers ate 7 times, stopping simulation
+DEBUG: Monitor thread ending
+DEBUG: Monitor thread joined
+DEBUG: Waiting for threads to finish...
+DEBUG: Philo 5 dropped LEFT fork
+DEBUG: Philo 5 dropped RIGHT fork
+DEBUG: Philosopher 5 detected end of simulation, exiting
+DEBUG: Philosopher 4 detected end of simulation, exiting
+DEBUG: Philo 2 dropped LEFT fork
+DEBUG: Philo 2 dropped RIGHT fork
+DEBUG: Philosopher 2 detected end of simulation, exiting
+DEBUG: Philosopher 1 detected end of simulation, exiting
+DEBUG: Philo 3 dropped LEFT fork
+DEBUG: Philo 3 dropped RIGHT fork
+DEBUG: Philosopher 3 detected end of simulation, exiting
+DEBUG: All threads joined!
+DEBUG: Destroying mutexes...
+DEBUG: 5 fork mutexes destroyed
+DEBUG: 5 meal mutexes destroyed
+DEBUG: Print mutex destroyed
+DEBUG: Death mutex destroyed
+DEBUG: Freeing allocated memory...
+DEBUG: Forks array freed
+DEBUG: Philosophers array freed
+DEBUG: Cleanup complete!
+DEBUG: ========== PHILOSOPHERS END ==========
+
+							VALGRIND
+							
+							3534 5 is eating
+DEBUG: Philo 2 dropped LEFT fork
+DEBUG: Philo 2 dropped RIGHT fork
+3731 1 is thinking
+3731 1 has taken a fork
+3731 2 is sleeping
+3731 3 has taken a fork
+3731 3 is eating
+DEBUG: All philosophers ate 7 times, stopping simulation
+DEBUG: Monitor thread ending
+DEBUG: Monitor thread joined
+DEBUG: Waiting for threads to finish...
+DEBUG: Philosopher 4 detected end of simulation, exiting
+DEBUG: Philo 5 dropped LEFT fork
+DEBUG: Philo 5 dropped RIGHT fork
+DEBUG: Philosopher 5 detected end of simulation, exiting
+DEBUG: Philo 1 dropped LEFT fork
+DEBUG: Philo 1 dropped RIGHT fork
+DEBUG: Philosopher 1 detected end of simulation, exiting
+DEBUG: Philo 3 dropped LEFT fork
+DEBUG: Philo 3 dropped RIGHT fork
+DEBUG: Philosopher 3 detected end of simulation, exiting
+DEBUG: Philosopher 2 detected end of simulation, exiting
+DEBUG: All threads joined!
+DEBUG: Destroying mutexes...
+DEBUG: 5 fork mutexes destroyed
+DEBUG: 5 meal mutexes destroyed
+DEBUG: Print mutex destroyed
+DEBUG: Death mutex destroyed
+DEBUG: Freeing allocated memory...
+DEBUG: Forks array freed
+DEBUG: Philosophers array freed
+DEBUG: Cleanup complete!
+DEBUG: ========== PHILOSOPHERS END ==========
+==1545==
+==1545== HEAP SUMMARY:
+==1545==     in use at exit: 0 bytes in 0 blocks
+==1545==   total heap usage: 9 allocs, 9 frees, 3,296 bytes allocated
+==1545==
+==1545== All heap blocks were freed -- no leaks are possible
+==1545==
+==1545== For lists of detected and suppressed errors, rerun with: -s
+==1545== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+
+----------------------------------------------------------------
+----------------------------------------------------------------
+----------------------------------------------------------------
+
+philo   main ●  valgrind --leak-check=full ./philo 2 800 200
+200 3
+==1614== Memcheck, a memory error detector
+==1614== Copyright (C) 2002-2022, and GNU GPL'd, by Julian Seward et al.
+==1614== Using Valgrind-3.22.0 and LibVEX; rerun with -h for copyright info
+==1614== Command: ./philo 2 800 200 200 3
+==1614==
+DEBUG: ========== PHILOSOPHERS START ==========
+DEBUG: Arguments parsed successfully:
+  - Philosophers: 2
+  - Time to die: 800 ms
+  - Time to eat: 200 ms
+  - Time to sleep: 200 ms
+  - Must eat: 3 times
+DEBUG: Arguments validated successfully!
+DEBUG: Initializing data structures...
+DEBUG: Print mutex initialized
+DEBUG: Death mutex initialized
+DEBUG: Fork 0 mutex initialized
+DEBUG: Fork 1 mutex initialized
+DEBUG: Philosopher 1 initialized (left_fork=0, right_fork=1)
+DEBUG: Philosopher 2 initialized (left_fork=1, right_fork=0)
+DEBUG: All data structures initialized with success!
+DEBUG: Simulation start time: 1763138739340
+DEBUG: All philos last_meal_time initialized
+DEBUG: Creating philo threads...
+DEBUG: All 2 threads created!
+DEBUG: Monitor thread created
+DEBUG: Philosopher 1 thread started
+77 1 has taken a fork
+78 1 has taken a fork
+78 1 is eating
+DEBUG: Philosopher 2 thread started
+DEBUG: Monitor thread started
+DEBUG: Philo 1 dropped LEFT fork
+DEBUG: Philo 1 dropped RIGHT fork
+278 2 has taken a fork
+279 2 has taken a fork
+279 2 is eating
+279 1 is sleeping
+DEBUG: Philo 2 dropped LEFT fork
+DEBUG: Philo 2 dropped RIGHT fork
+479 2 is sleeping
+480 1 is thinking
+482 1 has taken a fork
+482 1 has taken a fork
+482 1 is eating
+679 2 is thinking
+DEBUG: Philo 1 dropped LEFT fork
+DEBUG: Philo 1 dropped RIGHT fork
+682 1 is sleeping
+682 2 has taken a fork
+682 2 has taken a fork
+682 2 is eating
+DEBUG: Philo 2 dropped LEFT fork
+DEBUG: Philo 2 dropped RIGHT fork
+882 1 is thinking
+882 2 is sleeping
+883 1 has taken a fork
+883 1 has taken a fork
+883 1 is eating
+1082 2 is thinking
+DEBUG: Philo 1 dropped LEFT fork
+DEBUG: Philo 1 dropped RIGHT fork
+1083 1 is sleeping
+1083 2 has taken a fork
+1083 2 has taken a fork
+1083 2 is eating
+DEBUG: Philo 2 dropped LEFT fork
+DEBUG: Philo 2 dropped RIGHT fork
+1283 2 is sleeping
+1283 1 is thinking
+1284 1 has taken a fork
+1284 1 has taken a fork
+1284 1 is eating
+DEBUG: All philosophers ate 3 times, stopping simulation
+DEBUG: Monitor thread ending
+DEBUG: Monitor thread joined
+DEBUG: Waiting for threads to finish...
+DEBUG: Philosopher 2 detected end of simulation, exiting
+DEBUG: Philo 1 dropped LEFT fork
+DEBUG: Philo 1 dropped RIGHT fork
+DEBUG: Philosopher 1 detected end of simulation, exiting
+DEBUG: All threads joined!
+DEBUG: Destroying mutexes...
+DEBUG: 2 fork mutexes destroyed
+DEBUG: 2 meal mutexes destroyed
+DEBUG: Print mutex destroyed
+DEBUG: Death mutex destroyed
+DEBUG: Freeing allocated memory...
+DEBUG: Forks array freed
+DEBUG: Philosophers array freed
+DEBUG: Cleanup complete!
+DEBUG: ========== PHILOSOPHERS END ==========
+==1614==
+==1614== HEAP SUMMARY:
+==1614==     in use at exit: 0 bytes in 0 blocks
+==1614==   total heap usage: 6 allocs, 6 frees, 2,096 bytes allocated
+==1614==
+==1614== All heap blocks were freed -- no leaks are possible
+==1614==
+==1614== For lists of detected and suppressed errors, rerun with: -s
+==1614== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+
+
+-------------------------------------------
+------------------------------------------
+-----------------------------------------
+
+
+philo   main ●  valgrind --leak-check=full --show-leak-kinds=all ./philo 4 800 200 200 5
+==2375== Memcheck, a memory error detector
+==2375== Copyright (C) 2002-2022, and GNU GPL'd, by Julian Seward et al.
+==2375== Using Valgrind-3.22.0 and LibVEX; rerun with -h for copyright info
+==2375== Command: ./philo 4 800 200 200 5
+==2375==
+DEBUG: ========== PHILOSOPHERS START ==========
+DEBUG: Arguments parsed successfully:
+  - Philosophers: 4
+  - Time to die: 800 ms
+  - Time to eat: 200 ms
+  - Time to sleep: 200 ms
+  - Must eat: 5 times
+DEBUG: Arguments validated successfully!
+DEBUG: Initializing data structures...
+DEBUG: Print mutex initialized
+DEBUG: Death mutex initialized
+DEBUG: Fork 0 mutex initialized
+DEBUG: Fork 1 mutex initialized
+DEBUG: Fork 2 mutex initialized
+DEBUG: Fork 3 mutex initialized
+DEBUG: Philosopher 1 initialized (left_fork=0, right_fork=1)
+DEBUG: Philosopher 2 initialized (left_fork=1, right_fork=2)
+DEBUG: Philosopher 3 initialized (left_fork=2, right_fork=3)
+DEBUG: Philosopher 4 initialized (left_fork=3, right_fork=0)
+DEBUG: All data structures initialized with success!
+DEBUG: Simulation start time: 1763139144735
+DEBUG: All philos last_meal_time initialized
+DEBUG: Creating philo threads...
+DEBUG: Philosopher 1 thread started
+53 1 has taken a fork
+54 1 has taken a fork
+DEBUG: Philosopher 2 thread started
+DEBUG: Philosopher 3 thread started
+DEBUG: All 4 threads created!
+DEBUG: Monitor thread started
+118 1 is eating
+DEBUG: Philosopher 4 thread started
+DEBUG: Monitor thread created
+119 3 has taken a fork
+120 3 has taken a fork
+120 3 is eating
+DEBUG: Philo 1 dropped LEFT fork
+DEBUG: Philo 1 dropped RIGHT fork
+319 2 has taken a fork
+319 1 is sleeping
+DEBUG: Philo 3 dropped LEFT fork
+DEBUG: Philo 3 dropped RIGHT fork
+320 2 has taken a fork
+320 2 is eating
+320 3 is sleeping
+320 4 has taken a fork
+320 4 has taken a fork
+320 4 is eating
+520 1 is thinking
+DEBUG: Philo 2 dropped LEFT fork
+DEBUG: Philo 2 dropped RIGHT fork
+520 3 is thinking
+DEBUG: Philo 4 dropped LEFT fork
+DEBUG: Philo 4 dropped RIGHT fork
+521 2 is sleeping
+521 1 has taken a fork
+521 1 has taken a fork
+521 4 is sleeping
+522 1 is eating
+522 3 has taken a fork
+522 3 has taken a fork
+522 3 is eating
+721 2 is thinking
+DEBUG: Philo 3 dropped LEFT fork
+DEBUG: Philo 1 dropped LEFT fork
+DEBUG: Philo 3 dropped RIGHT fork
+DEBUG: Philo 1 dropped RIGHT fork
+722 4 is thinking
+722 1 is sleeping
+722 2 has taken a fork
+722 2 has taken a fork
+723 2 is eating
+723 3 is sleeping
+723 4 has taken a fork
+723 4 has taken a fork
+723 4 is eating
+922 1 is thinking
+DEBUG: Philo 4 dropped LEFT fork
+DEBUG: Philo 4 dropped RIGHT fork
+923 4 is sleeping
+923 1 has taken a fork
+923 1 has taken a fork
+923 1 is eating
+DEBUG: Philo 2 dropped LEFT fork
+DEBUG: Philo 2 dropped RIGHT fork
+923 3 is thinking
+923 2 is sleeping
+924 3 has taken a fork
+924 3 has taken a fork
+924 3 is eating
+1123 4 is thinking
+DEBUG: Philo 1 dropped LEFT fork
+DEBUG: Philo 1 dropped RIGHT fork
+1123 1 is sleeping
+1123 2 is thinking
+1124 2 has taken a fork
+DEBUG: Philo 3 dropped LEFT fork
+DEBUG: Philo 3 dropped RIGHT fork
+1124 2 has taken a fork
+1124 4 has taken a fork
+1124 4 has taken a fork
+1124 2 is eating
+1124 3 is sleeping
+1124 4 is eating
+1323 1 is thinking
+DEBUG: Philo 2 dropped LEFT fork
+DEBUG: Philo 2 dropped RIGHT fork
+1324 1 has taken a fork
+DEBUG: Philo 4 dropped LEFT fork
+DEBUG: Philo 4 dropped RIGHT fork
+1324 3 is thinking
+1324 2 is sleeping
+1324 1 has taken a fork
+1324 1 is eating
+1324 4 is sleeping
+1325 3 has taken a fork
+1325 3 has taken a fork
+1325 3 is eating
+1524 4 is thinking
+DEBUG: Philo 1 dropped LEFT fork
+DEBUG: Philo 1 dropped RIGHT fork
+1524 1 is sleeping
+1524 2 is thinking
+DEBUG: Philo 3 dropped LEFT fork
+DEBUG: Philo 3 dropped RIGHT fork
+1525 2 has taken a fork
+1525 2 has taken a fork
+1525 2 is eating
+1525 4 has taken a fork
+1525 3 is sleeping
+1525 4 has taken a fork
+1525 4 is eating
+1724 1 is thinking
+1725 3 is thinking
+DEBUG: Philo 4 dropped LEFT fork
+DEBUG: Philo 4 dropped RIGHT fork
+1725 4 is sleeping
+DEBUG: Philo 2 dropped LEFT fork
+DEBUG: Philo 2 dropped RIGHT fork
+1725 1 has taken a fork
+1725 1 has taken a fork
+1725 1 is eating
+1725 2 is sleeping
+1726 3 has taken a fork
+1726 3 has taken a fork
+1726 3 is eating
+1925 4 is thinking
+DEBUG: Philo 1 dropped LEFT fork
+DEBUG: Philo 1 dropped RIGHT fork
+1925 1 is sleeping
+1925 2 is thinking
+1926 2 has taken a fork
+1926 2 has taken a fork
+1926 2 is eating
+DEBUG: Philo 3 dropped LEFT fork
+DEBUG: Philo 3 dropped RIGHT fork
+1926 3 is sleeping
+1926 4 has taken a fork
+1926 4 has taken a fork
+1926 4 is eating
+2125 1 is thinking
+2126 3 is thinking
+DEBUG: Philo 2 dropped LEFT fork
+DEBUG: Philo 2 dropped RIGHT fork
+2126 1 has taken a fork
+DEBUG: Philo 4 dropped LEFT fork
+DEBUG: Philo 4 dropped RIGHT fork
+2126 1 has taken a fork
+2126 1 is eating
+2126 4 is sleeping
+2126 2 is sleeping
+2127 3 has taken a fork
+2127 3 has taken a fork
+2127 3 is eating
+DEBUG: All philosophers ate 5 times, stopping simulation
+DEBUG: Monitor thread ending
+DEBUG: Monitor thread joined
+DEBUG: Waiting for threads to finish...
+DEBUG: Philosopher 4 detected end of simulation, exiting
+DEBUG: Philosopher 2 detected end of simulation, exiting
+DEBUG: Philo 1 dropped LEFT fork
+DEBUG: Philo 1 dropped RIGHT fork
+DEBUG: Philosopher 1 detected end of simulation, exiting
+DEBUG: Philo 3 dropped LEFT fork
+DEBUG: Philo 3 dropped RIGHT fork
+DEBUG: Philosopher 3 detected end of simulation, exiting
+DEBUG: All threads joined!
+DEBUG: Destroying mutexes...
+DEBUG: 4 fork mutexes destroyed
+DEBUG: 4 meal mutexes destroyed
+DEBUG: Print mutex destroyed
+DEBUG: Death mutex destroyed
+DEBUG: Freeing allocated memory...
+DEBUG: Forks array freed
+DEBUG: Philosophers array freed
+DEBUG: Cleanup complete!
+DEBUG: ========== PHILOSOPHERS END ==========
+==2375==
+==2375== HEAP SUMMARY:
+==2375==     in use at exit: 0 bytes in 0 blocks
+==2375==   total heap usage: 8 allocs, 8 frees, 2,896 bytes allocated
+==2375==
+==2375== All heap blocks were freed -- no leaks are possible
+==2375==
+==2375== For lists of detected and suppressed errors, rerun with: -s
+==2375== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+
+
+--------------------------------------------------------
+-------------------------------------------------------
+--------------------------------------------------------
+
+BUG FOUND
+
+philo   main ●  ./philo 4 800 200 200 0
+DEBUG: ========== PHILOSOPHERS START ==========
+DEBUG: Arguments parsed successfully:
+  - Philosophers: 4
+  - Time to die: 800 ms
+  - Time to eat: 200 ms
+  - Time to sleep: 200 ms
+  - Must eat: 0 times
+DEBUG: Arguments validated successfully!
+DEBUG: Initializing data structures...
+DEBUG: Print mutex initialized
+DEBUG: Death mutex initialized
+DEBUG: Fork 0 mutex initialized
+DEBUG: Fork 1 mutex initialized
+DEBUG: Fork 2 mutex initialized
+DEBUG: Fork 3 mutex initialized
+DEBUG: Philosopher 1 initialized (left_fork=0, right_fork=1)
+DEBUG: Philosopher 2 initialized (left_fork=1, right_fork=2)
+DEBUG: Philosopher 3 initialized (left_fork=2, right_fork=3)
+DEBUG: Philosopher 4 initialized (left_fork=3, right_fork=0)
+DEBUG: All data structures initialized with success!
+DEBUG: Simulation start time: 1763139098903
+DEBUG: All philos last_meal_time initialized
+DEBUG: Creating philo threads...
+DEBUG: Philosopher 1 thread started
+0 1 has taken a fork
+0 1 has taken a fork
+0 1 is eating
+DEBUG: Philosopher 2 thread started
+DEBUG: All 4 threads created!
+DEBUG: Philosopher 4 thread started
+DEBUG: Philosopher 3 thread started
+DEBUG: Monitor thread started
+DEBUG: All philosophers ate 0 times, stopping simulation
+DEBUG: Monitor thread ending
+DEBUG: Philosopher 3 detected end of simulation, exiting
+DEBUG: Monitor thread created
+DEBUG: Monitor thread joined
+DEBUG: Waiting for threads to finish...
+DEBUG: Philosopher 4 detected end of simulation, exiting
+DEBUG: Philosopher 2 detected end of simulation, exiting
+DEBUG: Philo 1 dropped LEFT fork
+DEBUG: Philo 1 dropped RIGHT fork
+DEBUG: Philosopher 1 detected end of simulation, exiting
+DEBUG: All threads joined!
+DEBUG: Destroying mutexes...
+DEBUG: 4 fork mutexes destroyed
+DEBUG: 4 meal mutexes destroyed
+DEBUG: Print mutex destroyed
+DEBUG: Death mutex destroyed
+DEBUG: Freeing allocated memory...
+DEBUG: Forks array freed
+DEBUG: Philosophers array freed
+DEBUG: Cleanup complete!
+DEBUG: ========== PHILOSOPHERS END ==========
+
+
+FIXING. Need to build a validation for must_eat_count = 0 in my parsing.c file before 
+
+/* Add something like this and add a debug line to be sure Validate must_eat_count is not 0 */
+	if (argc == 6 && data->must_eat_count == 0)
+	{
+		printf("Error: ....");
+		return (0);
+	}
+
+
+====================================================================
+=====================================================================
+====================================================================
+
+
+🧪 EDGE CASES TEST SUITE
+Here are all the critical edge cases you need to test:
+
+1. SINGLE PHILOSOPHER (Must Die)
+bash./philo 1 800 200 200
+Expected: Philosopher takes 1 fork, waits forever, dies at ~800ms
+
+2. SINGLE PHILOSOPHER WITH MEAL COUNT
+bash./philo 1 800 200 200 5
+Expected: Same as above - dies at ~800ms (can't eat with only 1 fork)
+
+3. TWO PHILOSOPHERS (Should Never Die)
+bash./philo 2 800 200 200
+Expected: Run forever alternating eating (Ctrl+C after ~10 seconds to verify)
+
+4. IMPOSSIBLE TIMING (Guaranteed Death)
+bash./philo 4 310 200 100
+Expected: Someone dies around 310-320ms (time_to_die = 310, eat+sleep = 300, too tight!)
+
+5. VERY TIGHT TIMING (Borderline)
+bash./philo 4 410 200 200
+Expected: Might survive or might die - depends on scheduling
+
+6. SAFE TIMING (Should Never Die)
+bash./philo 5 800 200 200
+Expected: Run forever without deaths (Ctrl+C after ~10 seconds)
+
+7. LARGE NUMBER OF PHILOSOPHERS
+bash./philo 200 800 200 200
+Expected: All 200 philosophers should run without deaths (Ctrl+C after ~5 seconds)
+
+8. STRESS TEST - Many Philos with Meal Count
+bash./philo 200 800 200 200 50
+Expected: Should stop after all 200 ate 50 times (might take 30-60 seconds)
+
+9. MINIMAL MEAL COUNT
+bash./philo 5 800 200 200 1
+Expected: Stops immediately after all ate 1 time (~1 second)
+
+10. ODD NUMBER OF PHILOSOPHERS
+bash./philo 5 800 200 200 10
+Expected: Should stop after all ate 10 times (odd numbers are tricky for fork distribution)
+
+11. EVEN NUMBER OF PHILOSOPHERS
+bash./philo 4 800 200 200 10
+Expected: Should stop after all ate 10 times
+
+12. THREE PHILOSOPHERS (Classic Case)
+bash./philo 3 610 200 200
+Expected: Should run forever without deaths
+
+13. DEATH DETECTION TIMING PRECISION
+bash./philo 4 400 200 200
+Expected: Run for a while, death should be detected within 10ms of actual death time
+
+14. INVALID ARGUMENTS (Should Print Error)
+bash./philo 0 800 200 200
+./philo -5 800 200 200
+./philo 5 -800 200 200
+./philo 5 800 0 200
+./philo abc 800 200 200
+./philo 5
+./philo 5 800 200
+Expected: Error message + program exits (no crash!)
+
+15. VALGRIND MEMORY CHECK
+bashvalgrind --leak-check=full --show-leak-kinds=all ./philo 4 800 200 200 5
+Expected:
+
+"All heap blocks were freed -- no leaks are possible"
+Some "possibly lost" from pthread is OK (system allocations)
+
+
+16. THREAD SANITIZER (Race Condition Check)
+bash# First, recompile with thread sanitizer:
+make fclean
+gcc -Wall -Wextra -Werror -pthread -fsanitize=thread -g *.c -I includes -o philo
+
+# Then test:
+./philo 4 800 200 200 5
+Expected: No data race warnings
+
+📋 QUICK TEST SCRIPT
+You can create a test script to run them all:
+bash#!/bin/bash
+echo "=== Test 1: Single Philosopher ==="
+timeout 2 ./philo 1 800 200 200
+
+echo -e "\n=== Test 2: Two Philosophers ==="
+timeout 5 ./philo 2 800 200 200
+
+echo -e "\n=== Test 3: Death Case ==="
+timeout 2 ./philo 4 310 200 100
+
+echo -e "\n=== Test 4: Meal Count Stop ==="
+./philo 4 800 200 200 7
+
+echo -e "\n=== Test 5: Large Number ==="
+timeout 5 ./philo 200 800 200 200
+
+echo -e "\n=== Test 6: Invalid Input ==="
+./philo 0 800 200 200
+./philo abc 800 200 200
+
+echo -e "\n=== All Tests Complete ==="
+
+🎯 MOST CRITICAL TESTS:
+
+✅ Test 1 (1 philo - must die)
+✅ Test 4 (meal count stop)
+✅ Test 3 (impossible timing - must die)
+✅ Test 7 (200 philos - stress test)
+✅ Test 15 (valgrind - no leaks)
