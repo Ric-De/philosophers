@@ -1,0 +1,1896 @@
+# 🧵 PTHREAD FUNCTIONS - COMPLETE GUIDE
+
+## 📚 Table of Contents
+1. [pthread_create](#pthread_create)
+2. [pthread_join](#pthread_join)
+3. [pthread_mutex_init](#pthread_mutex_init)
+4. [pthread_mutex_destroy](#pthread_mutex_destroy)
+5. [pthread_mutex_lock](#pthread_mutex_lock)
+6. [pthread_mutex_unlock](#pthread_mutex_unlock)
+
+---
+
+# 1. pthread_create
+
+## 🎯 What It Does (General)
+
+**Creates a new thread** - spawns a separate execution path in your program.
+
+Think of it like: **Cloning yourself to do multiple tasks simultaneously**
+
+### Analogy
+Imagine you're cooking:
+- **Main thread**: You're preparing the salad
+- **New thread**: A clone of you appears and starts cooking pasta simultaneously
+- Both of you work at the same time, independently
+
+---
+
+## 📖 Function Signature
+
+```c
+int pthread_create(
+    pthread_t *thread,              // Where to store thread ID
+    const pthread_attr_t *attr,     // Thread attributes (usually NULL)
+    void *(*start_routine)(void *), // Function the thread will run
+    void *arg                       // Argument to pass to that function
+);
+```
+
+### Parameters Explained:
+
+1. **`pthread_t *thread`** - Output parameter
+   - Pointer to a `pthread_t` variable
+   - Function fills this with the new thread's ID
+   - Used later to identify/join this thread
+
+2. **`const pthread_attr_t *attr`** - Thread configuration
+   - Usually `NULL` (use defaults)
+   - Can customize: stack size, scheduling, etc.
+   - **In 99% of cases: just use NULL**
+
+3. **`void *(*start_routine)(void *)`** - The function to run
+   - Pointer to a function that:
+     - Takes `void *` (generic pointer) as parameter
+     - Returns `void *` (generic pointer)
+   - This is what the thread will execute
+
+4. **`void *arg`** - Data to pass to the function
+   - Can be ANY pointer (struct, int, array, etc.)
+   - Will be passed to `start_routine`
+   - Thread will cast it back to the correct type
+
+### Return Value:
+- **0** on success
+- **Non-zero** error code on failure
+
+---
+
+## 🔧 How It Works (Under the Hood)
+
+### Step-by-Step Process:
+
+```
+1. Your Program Running
+   ┌─────────────────┐
+   │   Main Thread   │
+   │   (your code)   │
+   └────────┬────────┘
+            │
+            │ Calls pthread_create()
+            ▼
+2. OS Creates New Thread
+   ┌─────────────────┐     ┌─────────────────┐
+   │   Main Thread   │     │   New Thread    │
+   │   (continues)   │     │   (starts)      │
+   └─────────────────┘     └─────────────────┘
+            │                       │
+            │                       │ Runs start_routine()
+            │                       ▼
+3. Both Run Simultaneously
+   ┌─────────────────┐     ┌─────────────────┐
+   │   Main Thread   │     │   New Thread    │
+   │   doing work    │     │   doing work    │
+   └─────────────────┘     └─────────────────┘
+```
+
+### What the OS Does:
+1. **Allocates stack** for new thread (~2MB by default)
+2. **Copies CPU registers** to initialize thread state
+3. **Schedules thread** for execution
+4. **Calls start_routine** with provided argument
+5. **Both threads now run** (possibly on different CPU cores)
+
+---
+
+## 💻 General Example
+
+```c
+#include <pthread.h>
+#include <stdio.h>
+#include <unistd.h>
+
+// Function that the thread will execute
+void *print_message(void *arg)
+{
+    char *message = (char *)arg;  // Cast back to correct type
+    
+    printf("Thread says: %s\n", message);
+    sleep(2);
+    printf("Thread finishing!\n");
+    
+    return NULL;  // Thread exits here
+}
+
+int main(void)
+{
+    pthread_t my_thread;
+    char *msg = "Hello from thread!";
+    
+    printf("Main: Creating thread...\n");
+    
+    // Create the thread
+    if (pthread_create(&my_thread, NULL, print_message, msg) != 0)
+    {
+        printf("Error creating thread!\n");
+        return 1;
+    }
+    
+    printf("Main: Thread created, doing other work...\n");
+    sleep(1);
+    printf("Main: Still working...\n");
+    
+    // Wait for thread to finish (we'll cover this in pthread_join)
+    pthread_join(my_thread, NULL);
+    
+    printf("Main: Thread finished, exiting.\n");
+    return 0;
+}
+```
+
+**Output:**
+```
+Main: Creating thread...
+Main: Thread created, doing other work...
+Thread says: Hello from thread!
+Main: Still working...
+Thread finishing!
+Main: Thread finished, exiting.
+```
+
+---
+
+## 🎓 In Your Philosophers Project
+
+### Where It's Used:
+
+#### 1. Creating Philosopher Threads (`routine.c`)
+
+```c
+int create_threads(t_data *data)
+{
+    int i;
+
+    i = 0;
+    while (i < data->nb_philos)
+    {
+        if (pthread_create(&data->philos[i].thread,      // Store thread ID here
+                          NULL,                           // Default attributes
+                          philosopher_routine,            // Function to run
+                          &data->philos[i]) != 0)        // Pass philosopher struct
+        {
+            printf("Error: Failed to create thread for philo %d\n",
+                data->philos[i].id);
+            return (0);
+        }
+        i++;
+    }
+    return (1);
+}
+```
+
+**What happens:**
+```
+Before pthread_create:
+┌──────────────────┐
+│   Main Thread    │
+│                  │
+└──────────────────┘
+
+After pthread_create (called 5 times with 5 philosophers):
+┌──────────────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐
+│   Main Thread    │  │ Philo 1  │  │ Philo 2  │  │ Philo 3  │  │ Philo 4  │  │ Philo 5  │
+│                  │  │ Thread   │  │ Thread   │  │ Thread   │  │ Thread   │  │ Thread   │
+└──────────────────┘  └──────────┘  └──────────┘  └──────────┘  └──────────┘  └──────────┘
+                            │             │             │             │             │
+                            ▼             ▼             ▼             ▼             ▼
+                      philosopher_routine() runs independently in each thread
+```
+
+#### 2. Creating Monitor Thread (`main.c`)
+
+```c
+int run_simulation(t_data *data)
+{
+    pthread_t monitor;
+    
+    // ... setup code ...
+    
+    // Create monitor thread
+    if (pthread_create(&monitor, NULL, monitor_routine, data) != 0)
+    {
+        printf("Error: Monitor thread creation failed\n");
+        return (0);
+    }
+    
+    pthread_join(monitor, NULL);  // Wait for monitor
+    // ...
+}
+```
+
+---
+
+## 🎨 Visual: Thread Creation Process
+
+```
+Step 1: Before pthread_create
+═══════════════════════════════
+Memory Layout:
+┌────────────────────────────┐
+│  Main Thread Stack         │
+│  ┌──────────────────────┐  │
+│  │ Local variables      │  │
+│  │ Function calls       │  │
+│  └──────────────────────┘  │
+└────────────────────────────┘
+
+Step 2: pthread_create() called
+═══════════════════════════════
+OS allocates new stack:
+┌────────────────────────────┐  ┌────────────────────────────┐
+│  Main Thread Stack         │  │  New Thread Stack          │
+│  ┌──────────────────────┐  │  │  ┌──────────────────────┐  │
+│  │ Local variables      │  │  │  │ (empty initially)    │  │
+│  │ Function calls       │  │  │  │                      │  │
+│  └──────────────────────┘  │  │  └──────────────────────┘  │
+└────────────────────────────┘  └────────────────────────────┘
+
+Step 3: New thread starts running start_routine
+═══════════════════════════════════════════════
+┌────────────────────────────┐  ┌────────────────────────────┐
+│  Main Thread Stack         │  │  New Thread Stack          │
+│  ┌──────────────────────┐  │  │  ┌──────────────────────┐  │
+│  │ Executing main()     │  │  │  │ Executing            │  │
+│  │ code...              │  │  │  │ start_routine()      │  │
+│  └──────────────────────┘  │  │  └──────────────────────┘  │
+└────────────────────────────┘  └────────────────────────────┘
+         Running                          Running
+     independently                    independently
+```
+
+---
+
+## ⚠️ Common Pitfalls
+
+### Pitfall 1: Passing Local Variables
+```c
+// ❌ WRONG - Variable goes out of scope!
+void create_bad_thread(void)
+{
+    pthread_t thread;
+    int local_var = 42;
+    
+    pthread_create(&thread, NULL, some_function, &local_var);
+    // local_var will be destroyed when function returns!
+    // Thread might access garbage memory!
+}
+
+// ✅ CORRECT - Use heap or global/static data
+void create_good_thread(void)
+{
+    pthread_t thread;
+    int *heap_var = malloc(sizeof(int));
+    *heap_var = 42;
+    
+    pthread_create(&thread, NULL, some_function, heap_var);
+    // heap_var persists after function returns
+}
+```
+
+### Pitfall 2: Not Checking Return Value
+```c
+// ❌ WRONG - Ignoring errors
+pthread_create(&thread, NULL, func, arg);
+
+// ✅ CORRECT - Always check!
+if (pthread_create(&thread, NULL, func, arg) != 0)
+{
+    perror("pthread_create failed");
+    // Handle error
+}
+```
+
+---
+
+# 2. pthread_join
+
+## 🎯 What It Does (General)
+
+**Waits for a thread to finish** and optionally retrieves its return value.
+
+Think of it like: **Waiting for your clone to finish their task before continuing**
+
+### Analogy
+- You sent a clone to buy groceries
+- You can't cook dinner until groceries arrive
+- `pthread_join()` = waiting at home until clone returns with groceries
+
+---
+
+## 📖 Function Signature
+
+```c
+int pthread_join(
+    pthread_t thread,    // Which thread to wait for
+    void **retval        // Where to store thread's return value (or NULL)
+);
+```
+
+### Parameters:
+
+1. **`pthread_t thread`** - Thread ID
+   - The thread you want to wait for
+   - Obtained from `pthread_create()`
+
+2. **`void **retval`** - Return value output
+   - Pointer to pointer where thread's return value goes
+   - Usually `NULL` (don't care about return value)
+   - If thread returns data, it goes here
+
+### Return Value:
+- **0** on success
+- **Non-zero** error code on failure
+
+---
+
+## 🔧 How It Works
+
+```
+Main Thread                          Worker Thread
+│                                    │
+│ pthread_create()                   │
+├────────────────────────────────────>│
+│                                    │ Running...
+│                                    │ Running...
+│ pthread_join() ──> BLOCKS HERE    │ Running...
+│                    (waiting)       │ Running...
+│                                    │ return NULL;
+│                                    │ (Thread exits)
+│ <────────────────────────────────────┘
+│ (Unblocks, continues)
+│
+▼
+```
+
+### What Happens:
+1. **Main thread calls `pthread_join()`**
+2. **Main thread BLOCKS** (stops execution, waits)
+3. **Worker thread continues** running
+4. **Worker thread finishes** (returns from start_routine)
+5. **OS wakes up main thread**
+6. **Main thread continues** after pthread_join()
+
+---
+
+## 💻 General Example
+
+```c
+#include <pthread.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <stdlib.h>
+
+void *worker_thread(void *arg)
+{
+    int id = *(int *)arg;
+    
+    printf("Thread %d: Starting work...\n", id);
+    sleep(2);  // Simulate work
+    printf("Thread %d: Work done!\n", id);
+    
+    // Return value (must be heap/static, not local!)
+    int *result = malloc(sizeof(int));
+    *result = id * 10;
+    return (void *)result;
+}
+
+int main(void)
+{
+    pthread_t threads[3];
+    int ids[3] = {1, 2, 3};
+    void *return_value;
+    
+    // Create 3 threads
+    for (int i = 0; i < 3; i++)
+    {
+        pthread_create(&threads[i], NULL, worker_thread, &ids[i]);
+    }
+    
+    printf("Main: All threads created, waiting...\n");
+    
+    // Join all threads (wait for each to finish)
+    for (int i = 0; i < 3; i++)
+    {
+        pthread_join(threads[i], &return_value);
+        printf("Main: Thread %d finished, returned %d\n", 
+               i + 1, *(int *)return_value);
+        free(return_value);  // Don't forget to free!
+    }
+    
+    printf("Main: All threads done!\n");
+    return 0;
+}
+```
+
+**Output:**
+```
+Thread 1: Starting work...
+Thread 2: Starting work...
+Thread 3: Starting work...
+Main: All threads created, waiting...
+Thread 1: Work done!
+Main: Thread 1 finished, returned 10
+Thread 2: Work done!
+Main: Thread 2 finished, returned 20
+Thread 3: Work done!
+Main: Thread 3 finished, returned 30
+Main: All threads done!
+```
+
+---
+
+## 🎓 In Your Philosophers Project
+
+### Where It's Used:
+
+#### 1. Joining Philosopher Threads (`routine.c`)
+
+```c
+int join_threads(t_data *data)
+{
+    int i;
+
+    i = 0;
+    while (i < data->nb_philos)
+    {
+        if (pthread_join(data->philos[i].thread, NULL) != 0)
+        {
+            printf("Error: Failed to join thread for philo %d\n",
+                data->philos[i].id);
+            return (0);
+        }
+        i++;
+    }
+    return (1);
+}
+```
+
+**What happens:**
+```
+Main Thread Timeline:
+│
+├─ create_threads() ──> Creates 5 philosopher threads
+│                       (All start running immediately)
+│
+├─ create monitor thread ──> Creates monitor thread
+│
+├─ pthread_join(monitor) ──> BLOCKS here waiting for monitor
+│                            (Monitor watches philosophers)
+│                            (Monitor detects death or completion)
+│                            (Monitor exits)
+│ <─────────────────────────── Monitor finished, main unblocks
+│
+├─ join_threads() ──> Waits for each philosopher thread
+│   ├─ pthread_join(philo[0].thread) ──> Wait for philosopher 1
+│   ├─ pthread_join(philo[1].thread) ──> Wait for philosopher 2
+│   ├─ pthread_join(philo[2].thread) ──> Wait for philosopher 3
+│   ├─ pthread_join(philo[3].thread) ──> Wait for philosopher 4
+│   └─ pthread_join(philo[4].thread) ──> Wait for philosopher 5
+│ <─────────────────────────────────── All philosophers finished
+│
+├─ cleanup_mutexes()
+├─ cleanup_data()
+└─ return 0
+```
+
+#### 2. Joining Monitor Thread (`main.c`)
+
+```c
+int run_simulation(t_data *data)
+{
+    pthread_t monitor;
+    
+    // Create philosopher threads...
+    
+    // Create monitor
+    pthread_create(&monitor, NULL, monitor_routine, data);
+    
+    // Wait for monitor to finish (blocks until simulation ends)
+    pthread_join(monitor, NULL);
+    
+    // Monitor finished means simulation is over
+    // Now wait for philosophers to finish
+    join_threads(data);
+    
+    return (1);
+}
+```
+
+---
+
+## 🎨 Visual: Thread Joining
+
+```
+Timeline View:
+═════════════
+
+Main Thread:    ●────────────────────────●───────────────────────────>
+                │                        │
+                │                        └─ Blocked in pthread_join()
+                └─ pthread_create()
+
+Worker Thread:  ····●──────────────●····
+                    │              │
+                    │              └─ Thread exits (return)
+                    └─ Thread starts
+                    
+                    ◄──────────────►
+                    Main is blocked
+                    during this time
+
+After join completes:
+Main Thread:    ──────────────────────────────●────────────────────>
+                                              │
+                                              └─ Continues execution
+```
+
+---
+
+## ⚠️ Common Pitfalls
+
+### Pitfall 1: Joining Before Thread Finishes
+```c
+// This is not a pitfall - pthread_join() WAITS automatically!
+// You can't "join too early" - it will just wait
+pthread_join(thread, NULL);  // Blocks until thread finishes
+```
+
+### Pitfall 2: Not Joining (Memory Leak)
+```c
+// ❌ WRONG - Creates "zombie" threads
+pthread_create(&thread, NULL, func, arg);
+// ... never call pthread_join() ...
+// Thread resources never cleaned up!
+
+// ✅ CORRECT - Always join (or detach)
+pthread_create(&thread, NULL, func, arg);
+// ... do work ...
+pthread_join(thread, NULL);  // Clean up thread resources
+```
+
+### Pitfall 3: Double Join
+```c
+// ❌ WRONG - Can't join same thread twice
+pthread_join(thread, NULL);
+pthread_join(thread, NULL);  // Undefined behavior!
+```
+
+---
+
+# 3. pthread_mutex_init
+
+## 🎯 What It Does (General)
+
+**Initializes a mutex** (mutual exclusion lock).
+
+Think of it like: **Creating a lock for a door**
+
+### Analogy
+- You have a bathroom (shared resource)
+- You install a lock on the door (mutex)
+- Before installation, anyone can enter (chaos!)
+- After installation, only one person at a time (safe!)
+
+---
+
+## 📖 Function Signature
+
+```c
+int pthread_mutex_init(
+    pthread_mutex_t *mutex,              // Mutex to initialize
+    const pthread_mutexattr_t *attr      // Attributes (usually NULL)
+);
+```
+
+### Parameters:
+
+1. **`pthread_mutex_t *mutex`** - Mutex variable
+   - Pointer to uninitialized mutex
+   - Function sets it up for use
+
+2. **`const pthread_mutexattr_t *attr`** - Configuration
+   - Usually `NULL` (use defaults)
+   - Can customize: type, protocol, etc.
+   - **Default is fine for 99% of cases**
+
+### Return Value:
+- **0** on success
+- **Non-zero** error code on failure
+
+---
+
+## 🔧 How It Works
+
+### What is a Mutex?
+
+**Mutex = MUTual EXclusion**
+
+A mutex is a locking mechanism that ensures only ONE thread can access a shared resource at a time.
+
+```
+Without Mutex (CHAOS):
+Thread 1: Read value (5)
+Thread 2: Read value (5)     ← Both read same value!
+Thread 1: Add 1, write (6)
+Thread 2: Add 1, write (6)   ← Both write 6! (Should be 7!)
+
+With Mutex (SAFE):
+Thread 1: Lock mutex
+Thread 1: Read value (5)
+Thread 1: Add 1, write (6)
+Thread 1: Unlock mutex
+Thread 2: Lock mutex         ← Waits until Thread 1 unlocks
+Thread 2: Read value (6)     ← Now reads correct value
+Thread 2: Add 1, write (7)
+Thread 2: Unlock mutex
+```
+
+### Mutex States:
+
+```
+Unlocked (Available)
+┌──────────────┐
+│   UNLOCKED   │ ← Anyone can lock it
+└──────────────┘
+
+Locked (Owned by a thread)
+┌──────────────┐
+│   LOCKED     │ ← Only one thread owns it
+│   (Thread 3) │   Others must wait
+└──────────────┘
+```
+
+---
+
+## 💻 General Example
+
+```c
+#include <pthread.h>
+#include <stdio.h>
+
+pthread_mutex_t my_mutex;  // Declare mutex variable
+int shared_counter = 0;     // Shared resource
+
+void *increment_counter(void *arg)
+{
+    for (int i = 0; i < 100000; i++)
+    {
+        pthread_mutex_lock(&my_mutex);      // Lock
+        shared_counter++;                    // Critical section
+        pthread_mutex_unlock(&my_mutex);    // Unlock
+    }
+    return NULL;
+}
+
+int main(void)
+{
+    pthread_t threads[5];
+    
+    // Initialize the mutex BEFORE using it
+    if (pthread_mutex_init(&my_mutex, NULL) != 0)
+    {
+        printf("Mutex init failed!\n");
+        return 1;
+    }
+    
+    // Create threads
+    for (int i = 0; i < 5; i++)
+        pthread_create(&threads[i], NULL, increment_counter, NULL);
+    
+    // Wait for threads
+    for (int i = 0; i < 5; i++)
+        pthread_join(threads[i], NULL);
+    
+    printf("Counter: %d (should be 500000)\n", shared_counter);
+    
+    // Clean up mutex
+    pthread_mutex_destroy(&my_mutex);
+    
+    return 0;
+}
+```
+
+**Output:**
+```
+Counter: 500000 (should be 500000)  ✅ Correct!
+```
+
+**Without mutex:**
+```
+Counter: 342891 (should be 500000)  ❌ Race condition!
+```
+
+---
+
+## 🎓 In Your Philosophers Project
+
+### Where It's Used:
+
+#### 1. Initialize Global Mutexes (`init.c`)
+
+```c
+int init_mutexes(t_data *data)
+{
+    // Initialize print mutex (protects console output)
+    if (pthread_mutex_init(&data->print_mutex, NULL) != 0)
+    {
+        printf("Error: Failed to initialize print mutex\n");
+        return (0);
+    }
+    
+    // Initialize death mutex (protects someone_died flag)
+    if (pthread_mutex_init(&data->death_mutex, NULL) != 0)
+    {
+        printf("Error: Failed to initialize death mutex\n");
+        pthread_mutex_destroy(&data->print_mutex);  // Clean up!
+        return (0);
+    }
+    
+    return (1);
+}
+```
+
+#### 2. Initialize Fork Mutexes (`init.c`)
+
+```c
+int init_forks(t_data *data)
+{
+    int i;
+
+    data->forks = malloc(sizeof(pthread_mutex_t) * data->nb_philos);
+    if (!data->forks)
+        return (0);
+    
+    i = 0;
+    while (i < data->nb_philos)
+    {
+        // Initialize each fork mutex
+        if (pthread_mutex_init(&data->forks[i], NULL) != 0)
+        {
+            printf("Error: Failed to initialize fork mutex %d\n", i);
+            return (0);
+        }
+        i++;
+    }
+    
+    return (1);
+}
+```
+
+#### 3. Initialize Meal Mutexes (`init.c`)
+
+```c
+int init_philosophers(t_data *data)
+{
+    int i;
+    
+    // ... allocation code ...
+    
+    i = 0;
+    while (i < data->nb_philos)
+    {
+        // Initialize meal mutex for each philosopher
+        if (pthread_mutex_init(&data->philos[i].meal_mutex, NULL) != 0)
+        {
+            printf("Error: Failed to init meal mutex for philo %d\n", i + 1);
+            return (0);
+        }
+        setup_philosopher(data, i);
+        i++;
+    }
+    
+    return (1);
+}
+```
+
+### Summary of Mutexes in Your Project:
+
+```
+Total Mutexes Initialized:
+┌─────────────────────────────────────────┐
+│ 1. print_mutex (1 global)              │
+│ 2. death_mutex (1 global)              │
+│ 3. forks[0..N-1] (N mutexes)          │
+│ 4. philos[i].meal_mutex (N mutexes)   │
+│                                         │
+│ Total: 2 + N + N = 2 + 2N mutexes     │
+│                                         │
+│ Example with 5 philos: 2 + 10 = 12    │
+└─────────────────────────────────────────┘
+```
+
+---
+
+## 🎨 Visual: Mutex Lifecycle
+
+```
+Step 1: Declaration
+═══════════════════
+pthread_mutex_t my_mutex;  // Just a variable (uninitialized)
+
+State: [INVALID] - Cannot be used yet!
+
+
+Step 2: Initialization
+══════════════════════
+pthread_mutex_init(&my_mutex, NULL);
+
+State: [UNLOCKED] - Ready to use!
+┌──────────────┐
+│   UNLOCKED   │
+│   (Free)     │
+└──────────────┘
+
+
+Step 3: Lock (First Thread)
+════════════════════════════
+pthread_mutex_lock(&my_mutex);
+
+State: [LOCKED by Thread 1]
+┌──────────────┐
+│   LOCKED     │
+│  (Thread 1)  │
+└──────────────┘
+
+
+Step 4: Another Thread Tries to Lock
+═════════════════════════════════════
+Thread 2: pthread_mutex_lock(&my_mutex);  ← BLOCKS HERE
+
+State: Still [LOCKED by Thread 1]
+┌──────────────┐
+│   LOCKED     │  ←─── Thread 1 owns it
+│  (Thread 1)  │
+└──────────────┘
+       ↑
+       │
+Thread 2 waiting...
+
+
+Step 5: First Thread Unlocks
+═════════════════════════════
+Thread 1: pthread_mutex_unlock(&my_mutex);
+
+State: [UNLOCKED]
+┌──────────────┐
+│   UNLOCKED   │
+└──────────────┘
+       ↓
+Thread 2 now acquires lock!
+
+
+Step 6: Destruction
+═══════════════════
+pthread_mutex_destroy(&my_mutex);
+
+State: [INVALID] - Cannot be used anymore!
+```
+
+---
+
+## ⚠️ Common Pitfalls
+
+### Pitfall 1: Using Before Initialization
+```c
+// ❌ WRONG - Undefined behavior!
+pthread_mutex_t mutex;
+pthread_mutex_lock(&mutex);  // Not initialized yet!
+
+// ✅ CORRECT
+pthread_mutex_t mutex;
+pthread_mutex_init(&mutex, NULL);  // Initialize first!
+pthread_mutex_lock(&mutex);
+```
+
+### Pitfall 2: Not Checking Return Value
+```c
+// ❌ WRONG
+pthread_mutex_init(&mutex, NULL);  // Ignoring errors
+
+// ✅ CORRECT
+if (pthread_mutex_init(&mutex, NULL) != 0)
+{
+    perror("Mutex init failed");
+    // Handle error
+}
+```
+
+### Pitfall 3: Initializing Twice
+```c
+// ❌ WRONG - Memory leak!
+pthread_mutex_init(&mutex, NULL);
+pthread_mutex_init(&mutex, NULL);  // Lost previous state!
+
+// ✅ CORRECT - Only initialize once
+pthread_mutex_init(&mutex, NULL);
+// ... use mutex ...
+pthread_mutex_destroy(&mutex);
+```
+
+---
+
+# 4. pthread_mutex_destroy
+
+## 🎯 What It Does (General)
+
+**Cleans up a mutex** and releases system resources.
+
+Think of it like: **Removing the lock from a door when you no longer need it**
+
+### Analogy
+- You installed a lock on bathroom door
+- You're moving out
+- Remove the lock (don't leave it there!)
+- `pthread_mutex_destroy()` = removing the lock
+
+---
+
+## 📖 Function Signature
+
+```c
+int pthread_mutex_destroy(
+    pthread_mutex_t *mutex    // Mutex to destroy
+);
+```
+
+### Parameters:
+
+1. **`pthread_mutex_t *mutex`** - Initialized mutex
+   - Must have been initialized with `pthread_mutex_init()`
+   - Must be UNLOCKED (not currently owned by any thread)
+   - After destruction, cannot be used anymore
+
+### Return Value:
+- **0** on success
+- **EBUSY** if mutex is locked
+- Other error codes on failure
+
+---
+
+## 🔧 How It Works
+
+### What Gets Destroyed:
+
+Mutexes hold **OS resources** (not just memory):
+- Kernel data structures
+- Wait queues
+- Synchronization primitives
+
+`pthread_mutex_destroy()` tells the OS: "I'm done with this mutex, release those resources"
+
+```
+Before Destroy:
+Mutex exists in kernel memory
+┌─────────────────────────┐
+│  Kernel Space           │
+│  ┌───────────────────┐  │
+│  │ Mutex metadata    │  │
+│  │ Wait queue        │  │
+│  │ Owner info        │  │
+│  └───────────────────┘  │
+└─────────────────────────┘
+
+After Destroy:
+Resources released
+┌─────────────────────────┐
+│  Kernel Space           │
+│  ┌───────────────────┐  │
+│  │ (freed)           │  │
+│  │                   │  │
+│  │                   │  │
+│  └───────────────────┘  │
+└─────────────────────────┘
+```
+
+---
+
+## 💻 General Example
+
+```c
+#include <pthread.h>
+#include <stdio.h>
+
+int main(void)
+{
+    pthread_mutex_t mutex;
+    
+    // 1. Initialize
+    pthread_mutex_init(&mutex, NULL);
+    printf("Mutex initialized\n");
+    
+    // 2. Use it
+    pthread_mutex_lock(&mutex);
+    printf("Mutex locked\n");
+    // ... critical section ...
+    pthread_mutex_unlock(&mutex);
+    printf("Mutex unlocked\n");
+    
+    // 3. Destroy (MUST be unlocked first!)
+    if (pthread_mutex_destroy(&mutex) == 0)
+        printf("Mutex destroyed successfully\n");
+    else
+        printf("Error destroying mutex\n");
+    
+    return 0;
+}
+```
+
+**Output:**
+```
+Mutex initialized
+Mutex locked
+Mutex unlocked
+Mutex destroyed successfully
+```
+
+---
+
+## 🎓 In Your Philosophers Project
+
+### Where It's Used:
+
+#### In `cleanup.c` - Clean All Mutexes
+
+```c
+void cleanup_mutexes(t_data *data)
+{
+    int i;
+
+    // Destroy fork mutexes
+    if (data->forks)
+    {
+        i = 0;
+        while (i < data->nb_philos)
+        {
+            pthread_mutex_destroy(&data->forks[i]);
+            i++;
+        }
+    }
+    
+    // Destroy meal mutexes
+    if (data->philos)
+    {
+        i = 0;
+        while (i < data->nb_philos)
+        {
+            pthread_mutex_destroy(&data->philos[i].meal_mutex);
+            i++;
+        }
+    }
+    
+    // Destroy global mutexes
+    pthread_mutex_destroy(&data->print_mutex);
+    pthread_mutex_destroy(&data->death_mutex);
+}
+```
+
+### Cleanup Order in Your Project:
+
+```
+Program Lifecycle:
+│
+├─ init_data()
+│  ├─ pthread_mutex_init(&print_mutex)
+│  ├─ pthread_mutex_init(&death_mutex)
+│  ├─ pthread_mutex_init(&forks[i]) × N
+│  └─ pthread_mutex_init(&philos[i].meal_mutex) × N
+│
+├─ run_simulation()
+│  └─ (mutexes used here)
+│
+└─ cleanup_mutexes()  ← MIRROR of initialization!
+   ├─ pthread_mutex_destroy(&forks[i]) × N
+   ├─ pthread_mutex_destroy(&philos[i].meal_mutex) × N
+   ├─ pthread_mutex_destroy(&print_mutex)
+   └─ pthread_mutex_destroy(&death_mutex)
+```
+
+---
+
+## 🎨 Visual: Complete Mutex Lifecycle
+
+```
+┌─────────────────────────────────────────────────────────┐
+│              MUTEX COMPLETE LIFECYCLE                   │
+└─────────────────────────────────────────────────────────┘
+
+1. Declaration
+   pthread_mutex_t mutex;
+   State: [UNINITIALIZED] ❌ Cannot use
+
+2. Initialization
+   pthread_mutex_init(&mutex, NULL);
+   State: [UNLOCKED] ✅ Ready to use
+   
+3. Lock
+   pthread_mutex_lock(&mutex);
+   State: [LOCKED] 🔒 Owned by thread
+   
+4. Unlock
+   pthread_mutex_unlock(&mutex);
+   State: [UNLOCKED] ✅ Available again
+   
+5. Destruction
+   pthread_mutex_destroy(&mutex);
+   State: [DESTROYED] ❌ Cannot use anymore
+
+6. After program ends
+   All resources freed by OS
+   State: [GONE] 💀 Memory reclaimed
+```
+
+---
+
+## ⚠️ Common Pitfalls
+
+### Pitfall 1: Destroying While Locked
+```c
+// ❌ WRONG - Mutex is locked!
+pthread_mutex_lock(&mutex);
+pthread_mutex_destroy(&mutex);  // ERROR: EBUSY
+
+// ✅ CORRECT - Unlock first
+pthread_mutex_lock(&mutex);
+// ... use mutex ...
+pthread_mutex_unlock(&mutex);
+pthread_mutex_destroy(&mutex);  // OK now
+```
+
+### Pitfall 2: Not Destroying (Resource Leak)
+```c
+// ❌ WRONG - Memory and system resources leaked!
+pthread_mutex_init(&mutex, NULL);
+// ... use mutex ...
+// Never call pthread_mutex_destroy()!
+
+// ✅ CORRECT - Always destroy
+pthread_mutex_init(&mutex, NULL);
+// ... use mutex ...
+pthread_mutex_destroy(&mutex);  // Clean up
+```
+
+### Pitfall 3: Using After Destruction
+```c
+// ❌ WRONG - Undefined behavior!
+pthread_mutex_destroy(&mutex);
+pthread_mutex_lock(&mutex);  // Mutex destroyed already!
+
+// ✅ CORRECT - Don't use after destruction
+pthread_mutex_destroy(&mutex);
+// Mutex is now invalid, don't touch it
+```
+
+---
+
+# 5. pthread_mutex_lock
+
+## 🎯 What It Does (General)
+
+**Acquires ownership of a mutex** (locks it).
+
+Think of it like: **Entering bathroom and locking the door from inside**
+
+### Analogy
+- You approach bathroom
+- Try to lock door:
+  - **If unlocked**: You lock it, enter (success!)
+  - **If locked**: You wait outside until person exits (blocks!)
+- `pthread_mutex_lock()` = trying to lock the bathroom door
+
+---
+
+## 📖 Function Signature
+
+```c
+int pthread_mutex_lock(
+    pthread_mutex_t *mutex    // Mutex to lock
+);
+```
+
+### Parameters:
+
+1. **`pthread_mutex_t *mutex`** - Initialized mutex
+   - Must be initialized with `pthread_mutex_init()`
+   - Function will **block** if already locked
+   - Returns when mutex is acquired
+
+### Return Value:
+- **0** on success (mutex now owned by calling thread)
+- **Non-zero** error code on failure
+
+---
+
+## 🔧 How It Works
+
+### Behavior:
+
+```c
+pthread_mutex_lock(&mutex);
+```
+
+**Two possible scenarios:**
+
+#### Scenario 1: Mutex is UNLOCKED
+```
+Before:
+┌──────────────┐
+│   UNLOCKED   │
+└──────────────┘
+
+pthread_mutex_lock() called
+        ↓
+Immediately succeeds
+
+After:
+┌──────────────┐
+│   LOCKED     │
+│ (Your thread)│
+└──────────────┘
+```
+
+#### Scenario 2: Mutex is LOCKED
+```
+Before:
+┌──────────────┐
+│   LOCKED     │
+│  (Thread 1)  │
+└──────────────┘
+
+Your thread calls pthread_mutex_lock()
+        ↓
+BLOCKS (waits)
+        ↓
+Thread 1 calls pthread_mutex_unlock()
+        ↓
+Your thread wakes up and acquires lock
+
+After:
+┌──────────────┐
+│   LOCKED     │
+│ (Your thread)│
+└──────────────┘
+```
+
+---
+
+## 💻 General Example
+
+```c
+#include <pthread.h>
+#include <stdio.h>
+#include <unistd.h>
+
+pthread_mutex_t mutex;
+int shared_resource = 0;
+
+void *thread_function(void *arg)
+{
+    int id = *(int *)arg;
+    
+    printf("Thread %d: Trying to lock mutex...\n", id);
+    
+    pthread_mutex_lock(&mutex);  // May block here!
+    
+    printf("Thread %d: Acquired mutex!\n", id);
+    
+    // Critical section - only ONE thread here at a time
+    shared_resource++;
+    printf("Thread %d: Incremented resource to %d\n", id, shared_resource);
+    sleep(1);  // Simulate work
+    
+    pthread_mutex_unlock(&mutex);
+    
+    printf("Thread %d: Released mutex\n", id);
+    
+    return NULL;
+}
+
+int main(void)
+{
+    pthread_t threads[3];
+    int ids[3] = {1, 2, 3};
+    
+    pthread_mutex_init(&mutex, NULL);
+    
+    // Create 3 threads
+    for (int i = 0; i < 3; i++)
+        pthread_create(&threads[i], NULL, thread_function, &ids[i]);
+    
+    // Wait for all
+    for (int i = 0; i < 3; i++)
+        pthread_join(threads[i], NULL);
+    
+    pthread_mutex_destroy(&mutex);
+    
+    return 0;
+}
+```
+
+**Output:**
+```
+Thread 1: Trying to lock mutex...
+Thread 1: Acquired mutex!
+Thread 2: Trying to lock mutex...  ← Blocked!
+Thread 3: Trying to lock mutex...  ← Blocked!
+Thread 1: Incremented resource to 1
+Thread 1: Released mutex
+Thread 2: Acquired mutex!          ← Now gets it
+Thread 2: Incremented resource to 2
+Thread 2: Released mutex
+Thread 3: Acquired mutex!          ← Now gets it
+Thread 3: Incremented resource to 3
+Thread 3: Released mutex
+```
+
+---
+
+## 🎓 In Your Philosophers Project
+
+### Where It's Used:
+
+#### 1. Locking Forks (`helpers_forks.c`)
+
+```c
+int lock_first_fork(t_philo *philo, pthread_mutex_t *first_fork)
+{
+    // Lock the first fork (may block if another philosopher has it)
+    pthread_mutex_lock(first_fork);
+    
+    print_status(philo, "has taken a fork");
+    
+    // Check if simulation ended while waiting
+    if (is_simulation_over(philo->data))
+    {
+        pthread_mutex_unlock(first_fork);
+        return (0);
+    }
+    
+    return (1);
+}
+```
+
+```c
+int take_forks(t_philo *philo)
+{
+    pthread_mutex_t *first_fork;
+    pthread_mutex_t *second_fork;
+    
+    // ... fork order selection ...
+    
+    // Lock first fork
+    if (!lock_first_fork(philo, first_fork))
+        return (0);
+    
+    // Lock second fork (may also block!)
+    pthread_mutex_lock(second_fork);
+    print_status(philo, "has taken a fork");
+    
+    return (1);  // Both forks acquired!
+}
+```
+
+**What happens:**
+```
+Philosopher 1 wants to eat:
+├─ select_fork_order() → first=fork[0], second=fork[1]
+├─ pthread_mutex_lock(&fork[0]) → SUCCESS (fork available)
+├─ print "has taken a fork"
+├─ pthread_mutex_lock(&fork[1]) → BLOCKS (Philosopher 2 has it!)
+│  (waits...)
+│  (Philosopher 2 releases fork[1])
+└─ pthread_mutex_lock(&fork[1]) → SUCCESS (now available)
+   └─ print "has taken a fork"
+      └─ Can now eat!
+```
+
+#### 2. Protecting Meal Data (`actions.c`)
+
+```c
+void philo_eat(t_philo *philo)
+{
+    // ... take forks ...
+    
+    // Update last meal time (protected!)
+    pthread_mutex_lock(&philo->meal_mutex);
+    philo->last_meal_time = get_time();
+    pthread_mutex_unlock(&philo->meal_mutex);
+    
+    print_status(philo, "is eating");
+    ft_usleep(philo->data->time_to_eat);
+    
+    // Update meals eaten (protected!)
+    pthread_mutex_lock(&philo->meal_mutex);
+    philo->meals_eaten++;
+    pthread_mutex_unlock(&philo->meal_mutex);
+    
+    drop_forks(philo);
+}
+```
+
+#### 3. Protecting Console Output (`utils.c`)
+
+```c
+void print_status(t_philo *philo, char *status)
+{
+    long timestamp;
+
+    // Lock to prevent interleaved output
+    pthread_mutex_lock(&philo->data->print_mutex);
+    
+    if (!is_simulation_over(philo->data))
+    {
+        timestamp = get_time() - philo->data->start_time;
+        printf("%ld %d %s\n", timestamp, philo->id, status);
+    }
+    
+    pthread_mutex_unlock(&philo->data->print_mutex);
+}
+```
+
+#### 4. Protecting Simulation State (`monitor.c`)
+
+```c
+int is_simulation_over(t_data *data)
+{
+    int result;
+
+    // Lock to safely read someone_died flag
+    pthread_mutex_lock(&data->death_mutex);
+    result = data->someone_died;
+    pthread_mutex_unlock(&data->death_mutex);
+    
+    return (result);
+}
+```
+
+---
+
+## 🎨 Visual: Lock Contention
+
+```
+Timeline with 3 threads trying to lock same mutex:
+
+Time  Thread 1         Thread 2         Thread 3         Mutex State
+────  ───────────────  ───────────────  ───────────────  ─────────────
+t0    lock() ────────>                                   UNLOCKED
+t1                                                        LOCKED(T1)
+t2    [working...]    lock() ────────>                  LOCKED(T1)
+t3    [working...]    [BLOCKED]        lock() ────────> LOCKED(T1)
+t4    [working...]    [BLOCKED]        [BLOCKED]        LOCKED(T1)
+t5    unlock() ──────>                                   UNLOCKED
+t6                     lock()SUCCESS!                    LOCKED(T2)
+t7                     [working...]     [BLOCKED]        LOCKED(T2)
+t8                     unlock() ──────>                  UNLOCKED
+t9                                      lock()SUCCESS!   LOCKED(T3)
+t10                                     [working...]     LOCKED(T3)
+t11                                     unlock() ──────> UNLOCKED
+```
+
+---
+
+## ⚠️ Common Pitfalls
+
+### Pitfall 1: Forgetting to Unlock (DEADLOCK!)
+```c
+// ❌ WRONG - Mutex never unlocked!
+pthread_mutex_lock(&mutex);
+// ... do work ...
+return;  // Oops! Forgot to unlock!
+// Now NO ONE can lock this mutex ever again!
+
+// ✅ CORRECT - Always unlock
+pthread_mutex_lock(&mutex);
+// ... do work ...
+pthread_mutex_unlock(&mutex);  // Don't forget!
+```
+
+### Pitfall 2: Double Lock (DEADLOCK!)
+```c
+// ❌ WRONG - Same thread locks twice!
+pthread_mutex_lock(&mutex);
+pthread_mutex_lock(&mutex);  // DEADLOCK! Waiting for yourself!
+
+// ✅ CORRECT - Only lock once
+pthread_mutex_lock(&mutex);
+// ... work ...
+pthread_mutex_unlock(&mutex);
+```
+
+### Pitfall 3: Wrong Order (DEADLOCK!)
+```c
+// Thread 1:
+pthread_mutex_lock(&mutex_a);
+pthread_mutex_lock(&mutex_b);  // ← Blocked if Thread 2 has mutex_b
+
+// Thread 2:
+pthread_mutex_lock(&mutex_b);
+pthread_mutex_lock(&mutex_a);  // ← Blocked if Thread 1 has mutex_a
+
+// ❌ CIRCULAR WAIT = DEADLOCK!
+
+// ✅ CORRECT - Always lock in same order
+// Both threads:
+pthread_mutex_lock(&mutex_a);  // Always lock A first
+pthread_mutex_lock(&mutex_b);  // Then B
+```
+
+---
+
+# 6. pthread_mutex_unlock
+
+## 🎯 What It Does (General)
+
+**Releases ownership of a mutex** (unlocks it).
+
+Think of it like: **Unlocking bathroom door and leaving**
+
+### Analogy
+- You're in bathroom with door locked
+- You finish, unlock door, leave
+- Next person can now enter
+- `pthread_mutex_unlock()` = unlocking and leaving
+
+---
+
+## 📖 Function Signature
+
+```c
+int pthread_mutex_unlock(
+    pthread_mutex_t *mutex    // Mutex to unlock
+);
+```
+
+### Parameters:
+
+1. **`pthread_mutex_t *mutex`** - Locked mutex
+   - Must be currently owned by calling thread
+   - After unlock, other threads can acquire it
+
+### Return Value:
+- **0** on success
+- **EPERM** if not owner
+- Other error codes on failure
+
+---
+
+## 🔧 How It Works
+
+```
+Before unlock:
+┌──────────────┐
+│   LOCKED     │
+│ (Your thread)│  ← You own it
+└──────────────┘
+       │
+       │ Other threads waiting...
+       ↓
+
+pthread_mutex_unlock(&mutex);
+       ↓
+
+After unlock:
+┌──────────────┐
+│   UNLOCKED   │  ← Available now
+└──────────────┘
+       │
+       │ OS wakes up one waiting thread
+       ↓
+┌──────────────┐
+│   LOCKED     │
+│ (Waiter)     │  ← Next thread gets it
+└──────────────┘
+```
+
+---
+
+## 💻 General Example
+
+```c
+#include <pthread.h>
+#include <stdio.h>
+
+pthread_mutex_t mutex;
+
+void *worker(void *arg)
+{
+    pthread_mutex_lock(&mutex);
+    printf("Thread %ld: I have the mutex!\n", (long)arg);
+    // ... work ...
+    printf("Thread %ld: Unlocking...\n", (long)arg);
+    pthread_mutex_unlock(&mutex);  // ← Release for others
+    return NULL;
+}
+
+int main(void)
+{
+    pthread_t t1, t2;
+    
+    pthread_mutex_init(&mutex, NULL);
+    
+    pthread_create(&t1, NULL, worker, (void *)1);
+    pthread_create(&t2, NULL, worker, (void *)2);
+    
+    pthread_join(t1, NULL);
+    pthread_join(t2, NULL);
+    
+    pthread_mutex_destroy(&mutex);
+    return 0;
+}
+```
+
+---
+
+## 🎓 In Your Philosophers Project
+
+### Where It's Used:
+
+#### 1. Dropping Forks (`actions.c`)
+
+```c
+void drop_forks(t_philo *philo)
+{
+    // Release both forks (unlock mutexes)
+    pthread_mutex_unlock(philo->left_fork);
+    pthread_mutex_unlock(philo->right_fork);
+}
+```
+
+#### 2. After Printing (`utils.c`)
+
+```c
+void print_status(t_philo *philo, char *status)
+{
+    pthread_mutex_lock(&philo->data->print_mutex);
+    // ... print ...
+    pthread_mutex_unlock(&philo->data->print_mutex);  // Let others print
+}
+```
+
+#### 3. After Reading/Writing State (`monitor.c` and `actions.c`)
+
+```c
+// Reading simulation state
+int is_simulation_over(t_data *data)
+{
+    int result;
+    
+    pthread_mutex_lock(&data->death_mutex);
+    result = data->someone_died;
+    pthread_mutex_unlock(&data->death_mutex);  // Done reading
+    
+    return (result);
+}
+
+// Writing meal data
+void philo_eat(t_philo *philo)
+{
+    pthread_mutex_lock(&philo->meal_mutex);
+    philo->last_meal_time = get_time();
+    pthread_mutex_unlock(&philo->meal_mutex);  // Done writing
+}
+```
+
+---
+
+## 🎨 Visual: Lock/Unlock Pattern
+
+```
+Thread Execution with Mutex:
+
+┌────────────────────────────────────────┐
+│  Before Critical Section               │
+│  (Normal execution)                    │
+└───────────────┬────────────────────────┘
+                │
+                ▼
+        pthread_mutex_lock()
+                │
+                ▼
+┌────────────────────────────────────────┐
+│  *** CRITICAL SECTION ***             │
+│  Only ONE thread can be here!          │
+│  ┌──────────────────────────────────┐  │
+│  │ Access shared data               │  │
+│  │ Modify variables                 │  │
+│  │ Call non-thread-safe functions   │  │
+│  └──────────────────────────────────┘  │
+└───────────────┬────────────────────────┘
+                │
+                ▼
+        pthread_mutex_unlock()
+                │
+                ▼
+┌────────────────────────────────────────┐
+│  After Critical Section                │
+│  (Normal execution)                    │
+└────────────────────────────────────────┘
+```
+
+---
+
+## ⚠️ Common Pitfalls
+
+### Pitfall 1: Unlocking Without Locking
+```c
+// ❌ WRONG - Never locked it!
+pthread_mutex_unlock(&mutex);  // Error: not owner
+
+// ✅ CORRECT - Lock first
+pthread_mutex_lock(&mutex);
+// ... work ...
+pthread_mutex_unlock(&mutex);
+```
+
+### Pitfall 2: Unlocking Wrong Mutex
+```c
+// ❌ WRONG - Unlocking different mutex!
+pthread_mutex_lock(&mutex_a);
+// ... work ...
+pthread_mutex_unlock(&mutex_b);  // Oops! Wrong one!
+
+// ✅ CORRECT - Unlock what you locked
+pthread_mutex_lock(&mutex_a);
+// ... work ...
+pthread_mutex_unlock(&mutex_a);
+```
+
+### Pitfall 3: Forgetting to Unlock
+```c
+// ❌ WRONG - Path without unlock
+pthread_mutex_lock(&mutex);
+if (error)
+    return ERROR;  // Forgot to unlock!
+pthread_mutex_unlock(&mutex);
+
+// ✅ CORRECT - Unlock on all paths
+pthread_mutex_lock(&mutex);
+if (error)
+{
+    pthread_mutex_unlock(&mutex);  // Unlock before return
+    return ERROR;
+}
+pthread_mutex_unlock(&mutex);
+```
+
+---
+
+## 🎯 CRITICAL SECTION PATTERN
+
+### The Standard Pattern (Use This!):
+
+```c
+pthread_mutex_lock(&mutex);
+// ▼ CRITICAL SECTION START ▼
+
+// Access/modify shared data here
+// Only one thread at a time
+
+// ▲ CRITICAL SECTION END ▲
+pthread_mutex_unlock(&mutex);
+```
+
+### Always Follow These Rules:
+
+1. ✅ **Lock before** accessing shared data
+2. ✅ **Keep critical section SHORT** (minimize lock time)
+3. ✅ **Unlock as soon as possible**
+4. ✅ **Unlock on ALL code paths** (including errors)
+5. ✅ **Never return while holding lock**
+
+---
+
+## 📚 SUMMARY OF ALL 6 FUNCTIONS
+
+```
+╔═══════════════════════════════════════════════════════════════╗
+║                    PTHREAD FUNCTIONS SUMMARY                  ║
+╠═══════════════════════════════════════════════════════════════╣
+║                                                               ║
+║  pthread_create()      Create new thread                     ║
+║  pthread_join()        Wait for thread to finish             ║
+║                                                               ║
+║  pthread_mutex_init()  Initialize mutex (create lock)        ║
+║  pthread_mutex_destroy() Cleanup mutex (remove lock)         ║
+║                                                               ║
+║  pthread_mutex_lock()  Acquire mutex (lock door)             ║
+║  pthread_mutex_unlock() Release mutex (unlock door)          ║
+║                                                               ║
+╚═══════════════════════════════════════════════════════════════╝
+
+Typical Usage Pattern:
+──────────────────────
+
+1. pthread_mutex_init(&mutex)     ← Create lock
+2. pthread_create(&thread, func)  ← Create thread
+   ├─ In thread:
+   │  ├─ pthread_mutex_lock(&mutex)    ← Lock
+   │  ├─ [critical section]
+   │  └─ pthread_mutex_unlock(&mutex)  ← Unlock
+3. pthread_join(thread)           ← Wait for thread
+4. pthread_mutex_destroy(&mutex)  ← Destroy lock
+```
+
+---
+
+## 🎓 PHILOSOPHER PROJECT - COMPLETE USAGE MAP
+
+```
+Philosophers Project - Thread & Mutex Usage:
+
+INITIALIZATION (init.c):
+├─ pthread_mutex_init(&print_mutex)        // 1 global
+├─ pthread_mutex_init(&death_mutex)        // 1 global
+├─ pthread_mutex_init(&forks[i])          // N forks
+└─ pthread_mutex_init(&meal_mutex[i])     // N philosophers
+
+THREAD CREATION (routine.c, main.c):
+├─ pthread_create(&philos[i].thread)      // N philosophers
+└─ pthread_create(&monitor)                // 1 monitor
+
+MUTEX USAGE (various files):
+├─ Forks (actions.c, helpers_forks.c):
+│  ├─ pthread_mutex_lock(fork)
+│  └─ pthread_mutex_unlock(fork)
+├─ Print (utils.c):
+│  ├─ pthread_mutex_lock(&print_mutex)
+│  └─ pthread_mutex_unlock(&print_mutex)
+├─ Death flag (monitor.c, utils.c):
+│  ├─ pthread_mutex_lock(&death_mutex)
+│  └─ pthread_mutex_unlock(&death_mutex)
+└─ Meal data (actions.c, monitor.c):
+   ├─ pthread_mutex_lock(&meal_mutex)
+   └─ pthread_mutex_unlock(&meal_mutex)
+
+THREAD JOINING (routine.c, main.c):
+├─ pthread_join(monitor)                   // Wait for monitor
+└─ pthread_join(philos[i].thread)         // Wait for each philosopher
+
+CLEANUP (cleanup.c):
+├─ pthread_mutex_destroy(&forks[i])       // All forks
+├─ pthread_mutex_destroy(&meal_mutex[i])  // All meal mutexes
+├─ pthread_mutex_destroy(&print_mutex)    // Global mutexes
+└─ pthread_mutex_destroy(&death_mutex)
+```
+
+---
+
+## 🎉 CONGRATULATIONS!
+
+You now understand:
+✅ How to create and join threads
+✅ How to initialize and destroy mutexes
+✅ How to lock and unlock mutexes
+✅ How your philosophers project uses all of these
+✅ Common pitfalls and how to avoid them
+
+**You're ready to explain this to evaluators!** 🚀
