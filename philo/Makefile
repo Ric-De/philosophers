@@ -6,7 +6,7 @@
 #    By: rdellaza <rdellaza@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/11/13 14:59:33 by rdellaza          #+#    #+#              #
-#    Updated: 2025/11/13 18:40:48 by rdellaza         ###   ########.fr        #
+#    Updated: 2025/11/15 20:28:46 by rdellaza         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,7 +14,7 @@ NAME = philo
 
 CC = cc
 
-CFLAGS = -Wall -Wextra -Werror -pthread -g
+CFLAGS = -Wall -Wextra -Werror -pthread -g #-fsanitize=thread
 # TODO: Add -fsanitize=thread later for thread debugging
 
 # Directories
